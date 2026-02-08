@@ -1,0 +1,45 @@
+.btn-uptx{
+    color: #fff !important;
+    background-color: #a52119 !important;
+    border-color: #a52119 !important;
+}
+
+
+.btn-uptx:hover{
+    background-color: #fff !important;
+    border-color: #a52119 !important;
+    color: #a52119 !important;
+}
+
+.btn-uptx-search{
+    color: #fff !important;
+    background-color: #a52119 !important;
+    border-color: #a52119 !important;
+}
+
+
+.btn-uptx-search:hover{
+    border-color: #a52119 !important;
+    background-color: #8f1d17 !important;
+    color: #ffffff !important;
+}
+
+.btn-add{
+    color: #fff !important;
+    background-color: #2aa64b !important;
+    border-color: #2aa64b !important;
+}
+
+
+.btn-add:hover{
+    color: #ffffff !important;
+    background-color: #22813b !important;
+    border-color: #2aa64b !important;
+}
+
+.anchor_uptx{
+    color: #a52119 !important;
+}
+.bg_uptx{
+    background-color: #a52119 !important;
+}

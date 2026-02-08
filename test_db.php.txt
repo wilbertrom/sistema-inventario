@@ -1,0 +1,8 @@
+<?php
+$mysqli = new mysqli("localhost", "sistemainvuser", "Sistemainvuser27_");
+if ($mysqli->connect_error) {
+    die("Error de conexión: " . $mysqli->connect_error);
+} else {
+    echo "Conexión exitosa a MySQL!";
+}
+?>
