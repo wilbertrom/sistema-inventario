@@ -6,8 +6,6 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 
-
-
 defined('BASEPATH') or exit('No direct script access allowed');
 require_once APPPATH.'libraries/phpspreadsheet/vendor/autoload.php';
 
@@ -27,7 +25,7 @@ require_once APPPATH.'libraries/phpspreadsheet/vendor/autoload.php';
  *
  */
 
-class Excel extends CI_Controller
+class Excel extends MY_Controller
 {
     
   public function __construct()
@@ -47,7 +45,7 @@ class Excel extends CI_Controller
     $spreadsheet->setActiveSheetIndex(0);
     $hojaActiva = $spreadsheet->getActiveSheet();
     
-    $hojaActiva->getStyle('A1')->getFont()->setName('Arial')->setSize('8');
+    $hojaActiva->getStyle('A1')->getFont()->setName('Arial')->setSize(8); // Corregido: setSize espera un número, no string
   
     $fila = 10; // Empezar después de los encabezados
     foreach ($equipos as $index => $equipo) {
@@ -115,26 +113,25 @@ class Excel extends CI_Controller
     // Nombre del archivo
     $file_name = 'reporte_equipos_pdf_' . date('Y-m-d_H-i-s') . '.xlsx';
 
+    // Limpiar cualquier salida previa que pueda interferir con los headers
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
 
-    //pasar el archivo al navegador
-    /*
+    // Configurar headers para la descarga del archivo
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: inline; filename="' . $file_name . '"');
+    header('Content-Disposition: attachment; filename="' . $file_name . '"'); // Cambiado de 'inline' a 'attachment'
     header('Cache-Control: max-age=0');
-*/
-
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: inline; filename="' . $file_name . '"');
-    header('Cache-Control: max-age=0');
-    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-    //$writer->save('recursos-panel/reports/'.$file_name);
-    $writer->save('php://output');
-  
+    header('Content-Transfer-Encoding: binary');
+    header('Expires: 0');
     
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $writer->save('php://output');
+    
+    // Asegurar que no se ejecute código adicional después de enviar el archivo
+    exit;
   }
-
 }
-
 
 /* End of file Excel.php */
 /* Location: ./application/controllers/Excel.php */

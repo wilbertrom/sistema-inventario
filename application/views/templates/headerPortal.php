@@ -33,17 +33,7 @@
             <button class="navbar-toggler close-button" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="mdi mdi-close navbar-toggler-icon pl-5"></span>
             </button>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-uptx" href="<?php echo base_url('portal/acerca_de')?>">Acerca&nbsp;de <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link nav-uptx" href="<?php echo base_url('portal/equipo')?>">Equipo</a>
-          </li>
-          
-          <li class="nav-item btn-contact-us pl-4 pl-lg-0">
-          <a href="<?php echo base_url('panel')?>" class="btn btn-uptx" role="button">Entrar al sistema</a>
-          </li>
+
         </ul>
       </div>
     </div> 

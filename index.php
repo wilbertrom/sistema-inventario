@@ -66,9 +66,9 @@
 switch (ENVIRONMENT)
 {
 	case 'development':
-		error_reporting(-1);
-		ini_set('display_errors', 1);
-	break;
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_WARNING);
+    ini_set('display_errors', 1);
+break;
 
 	case 'testing':
 	case 'production':
@@ -313,3 +313,18 @@ switch (ENVIRONMENT)
  * And away we go...
  */
 require_once BASEPATH.'core/CodeIgniter.php';
+if (PHP_VERSION_ID >= 80200 && class_exists('CI_DB_mysqli_driver')) {
+    // Forzar la propiedad failover para que no sea dinámica
+    $CI =& get_instance();
+    if (isset($CI->db) && !property_exists($CI->db, 'failover')) {
+        $reflection = new ReflectionClass($CI->db);
+        if (!$reflection->hasProperty('failover')) {
+            eval('
+                #[AllowDynamicProperties]
+                class CI_DB_mysqli_driver_Patch extends CI_DB_mysqli_driver {
+                    public $failover = array();
+                }
+            ');
+        }
+    }
+}

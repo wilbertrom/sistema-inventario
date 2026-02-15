@@ -27,41 +27,75 @@ class Orden_model extends CI_Model {
 
   // ------------------------------------------------------------------------
 
-
   // ------------------------------------------------------------------------
   public function index()
   {
-    // 
+    // Método vacío
+    return;
   }
 
   // ------------------------------------------------------------------------
 
-  public function registrar_orden($data){
+  public function registrar_orden($data)
+  {
+    // Verificar que los datos no estén vacíos y sean un array
+    if (empty($data) || !is_array($data)) {
+        return false;
+    }
+    
     $this->db->insert('mantenimientos', $data);
     return $this->db->insert_id();
   }
 
-  public function obtenerOrdenesEquipo($id){
+  public function obtenerOrdenesEquipo($id)
+  {
+    // Verificar que el ID no esté vacío
+    if (empty($id)) {
+        return array();
+    }
+    
     $this->db->where('id_equipos', $id);
     $query = $this->db->get('mantenimientos');
+    
+    // Verificar que la consulta fue exitosa
+    if ($query === false) {
+        return array();
+    }
+    
     return $query->result();
   }
-  public function   obtenerTodosMantenimientos(){
+  
+  public function obtenerTodosMantenimientos()
+  {
     $this->db->select('mantenimientos.*, equipos.cod_interno');
     $this->db->from('mantenimientos');
-    $this->db->join('equipos', 'mantenimientos.id_equipos=equipos.id_equipos', 'left');
+    $this->db->join('equipos', 'mantenimientos.id_equipos = equipos.id_equipos', 'left');
 
     $query = $this->db->get();
+    
+    // Verificar que la consulta fue exitosa
+    if ($query === false) {
+        return array();
+    }
+    
     return $query->result();
   }
 
-  public function obtenerNumeroMantenimientos(){
-    $this->db->select("mantenimentos");
-    return $this->db->count_all_results();
+  public function obtenerNumeroMantenimientos()
+  {
+    // Corregido: estaba usando "mantenimentos" (mal escrito)
+    $this->db->from("mantenimientos");
+    $count = $this->db->count_all_results();
+    
+    return is_numeric($count) ? (int)$count : 0;
   }
-  public function obtenerNumeroReq(){
-    $this->db->select("requisiciones");
-    return $this->db->count_all_results();
+  
+  public function obtenerNumeroReq()
+  {
+    $this->db->from("requisiciones");
+    $count = $this->db->count_all_results();
+    
+    return is_numeric($count) ? (int)$count : 0;
   }
 }
 

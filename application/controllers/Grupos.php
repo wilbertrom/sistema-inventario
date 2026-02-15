@@ -18,7 +18,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  *
  */
 
-class Grupos extends CI_Controller
+class Grupos extends MY_Controller
 {
     
   public function __construct()
@@ -41,7 +41,8 @@ class Grupos extends CI_Controller
 
   public function index()
   {
-    
+    // Método vacío - agregamos un return para claridad
+    return;
   }
 
   public function vista(){
@@ -49,18 +50,23 @@ class Grupos extends CI_Controller
     
     $data['mesas'] = $this->Grupo_model->obtenerMesas();
 
-    foreach ($data['mesas'] as &$mesa){
-      $mesa->grupos = $this->Grupo_model->obtenerGrupos($mesa->id_mesas);
-      foreach ($mesa->grupos as &$grupo) {
-          $grupo->equipos = $this->Grupo_model->getEquipos($grupo->id_grupos);
+    // Verificar que $data['mesas'] no sea null antes de iterar
+    if (is_array($data['mesas']) || is_object($data['mesas'])) {
+      foreach ($data['mesas'] as &$mesa){
+        $mesa->grupos = $this->Grupo_model->obtenerGrupos($mesa->id_mesas);
+        // Verificar que $mesa->grupos no sea null antes de iterar
+        if (is_array($mesa->grupos) || is_object($mesa->grupos)) {
+          foreach ($mesa->grupos as &$grupo) {
+            $grupo->equipos = $this->Grupo_model->getEquipos($grupo->id_grupos);
+          }
+        }
       }
-  }
-
+    }
 
     $this->load->view('templates/header', $data);
     $this->load->view('panel/grupos/vista_grupos', $data);
     $this->load->view('templates/footer', $data);
-}
+  }
 
   public function vista_asignar($tipo_equipo, $id_mesa, $id_grupo){
 
@@ -82,31 +88,37 @@ class Grupos extends CI_Controller
   }
 
   public function asignar(){
-    $this->form_validation->set_rules('equipo[]', 'Equipo','required');
-    $this->form_validation->set_rules('mesa', 'Mesa','required');
-    $this->form_validation->set_rules('grupo', 'Grupo','required');
+    // Configurar reglas de validación - corregido el nombre del campo 'equipo[]'
+    $this->form_validation->set_rules('equipo[]', 'Equipo', 'required');
+    $this->form_validation->set_rules('mesa', 'Mesa', 'required');
+    $this->form_validation->set_rules('grupo', 'Grupo', 'required');
     
     if ($this->form_validation->run() == FALSE) {
       // Si la validación falla, recargar la vista con errores
-      $this->load->view('panel/grupos/vista');
-  }else {
+      $this->vista(); // Llamar al método vista() en lugar de cargar directamente
+    } else {
       $id_tipo = $this->obtenerIdTipoEquipo($this->input->post('tipo'));
       $equipos = $this->input->post('equipo'); //array
       $id_grupo = $this->input->post('grupo');
+      
+      // Validar que $equipos sea un array
+      if (!is_array($equipos)) {
+        $equipos = array($equipos);
+      }
       
       // Verificar que se hayan seleccionado hasta 3 equipos si el tipo es "cable"
       if ($id_tipo == 16 && count($equipos) > 3) {
         // Manejar el error, por ejemplo, redirigir con un mensaje de error
         $this->session->set_flashdata('error', 'No puedes asignar más de 3 cables.');
         redirect('grupos/vista_asignar/' . $this->input->post('tipo') . '/' . $this->input->post('mesa') . '/' . $id_grupo);
-    }
+      }
 
-    // Verificar que solo se haya seleccionado un equipo si el tipo no es "cable"
-    if ($id_tipo != 16 && count($equipos) > 1) {
-      // Manejar el error, por ejemplo, redirigir con un mensaje de error
-      $this->session->set_flashdata('error', 'Solo puedes asignar un equipo.');
-      redirect('grupos/vista_asignar/' . $this->input->post('tipo') . '/' . $this->input->post('mesa') . '/' . $id_grupo);
-  }
+      // Verificar que solo se haya seleccionado un equipo si el tipo no es "cable"
+      if ($id_tipo != 16 && count($equipos) > 1) {
+        // Manejar el error, por ejemplo, redirigir con un mensaje de error
+        $this->session->set_flashdata('error', 'Solo puedes asignar un equipo.');
+        redirect('grupos/vista_asignar/' . $this->input->post('tipo') . '/' . $this->input->post('mesa') . '/' . $id_grupo);
+      }
 
       $data_asignar = array(
         'id_grupos' => $id_grupo
@@ -115,97 +127,137 @@ class Grupos extends CI_Controller
       if($this->Grupo_model->eliminarEquipoGrupo($id_tipo, $id_grupo)){
         foreach ($equipos as $id_equipo) {
           $this->Grupo_model->asignarGrupo($id_equipo, $data_asignar);
+        }
+        redirect('/grupos/vista');
+      } else {
+        $data['error'] = 'Error al asignar el equipo';
+        $this->vista(); // Llamar al método vista() con el error
       }
-      redirect('/grupos/vista');
-      }
-      else{
-        $this->load->view('/grupos/vista', array('error' => 'Error al asignar el equipo'));
-      }
-  }
+    }
   }
 
   public function detalles($tipo_equipo, $id_grupo){
     if($tipo_equipo == "CABLE"){ // si es cable cargamos otra vista
       $data['title'] = ucfirst("Detalles"); //Capitalizar la primera letra
-        $cables = $this->Grupo_model->obtenerEquipoAsignado($id_grupo, 16);
+      $cables = $this->Grupo_model->obtenerEquipoAsignado($id_grupo, 16);
+      
+      // Inicializar $data['cables'] como array vacío si no hay cables
+      $data['cables'] = array();
+      
+      if (is_array($cables) || is_object($cables)) {
         foreach($cables as $key => $cable){
           $data['cables'][$key] = $cable;
-          $data['cables'][$key] -> id_equipos = $this->idencrypt->encrypt($cable->id_equipos);
+          // Verificar que el objeto tenga la propiedad id_equipos
+          if (isset($cable->id_equipos)) {
+            $data['cables'][$key]->id_equipos = $this->idencrypt->encrypt($cable->id_equipos);
+          }
         }
+      }
 
       $this->load->view('templates/header', $data);
       $this->load->view('panel/grupos/vista_cables', $data);
       $this->load->view('templates/footer', $data);
-    }else{
-      
+    } else {
       $id_tipo = $this->obtenerIdTipoEquipo($tipo_equipo);
       $equipo = $this->Grupo_model->obtenerIdAsignado($id_grupo, $id_tipo);
+      
       if($equipo == null){
         $data['title'] = ucfirst("Error"); //Capitalizar la primera letra
         
         $this->load->view('templates/header', $data);
         $this->load->view('panel/detalles404');
         $this->load->view('templates/footer', $data);
-      }else{
-        $id_enc =$this->idencrypt->encrypt($equipo->id_equipos);
-        redirect('panel/detalles/'.$id_enc);
+      } else {
+        // Verificar que el objeto tenga la propiedad id_equipos
+        if (isset($equipo->id_equipos)) {
+          $id_enc = $this->idencrypt->encrypt($equipo->id_equipos);
+          redirect('panel/detalles/'.$id_enc);
+        } else {
+          // Si no hay id_equipos, mostrar error
+          $data['title'] = ucfirst("Error");
+          $this->load->view('templates/header', $data);
+          $this->load->view('panel/detalles404');
+          $this->load->view('templates/footer', $data);
+        }
       }
-      
     }
   }
+  
   public function mantenimiento($tipo_equipo, $id_grupo){
     $id_tipo = $this->obtenerIdTipoEquipo($tipo_equipo);
     $equipo = $this->Grupo_model->obtenerIdAsignado($id_grupo, $id_tipo);
+    
     if($equipo == null){
       $data['title'] = ucfirst("Error"); //Capitalizar la primera letra
 
       $this->load->view('templates/header', $data);
       $this->load->view('panel/detalles404');
       $this->load->view('templates/footer', $data);
-    }else{
-    $id_enc =$this->idencrypt->encrypt($equipo->id_equipos);
-    redirect('panel/orden_mantenimiento/'.$id_enc);
+    } else {
+      // Verificar que el objeto tenga la propiedad id_equipos
+      if (isset($equipo->id_equipos)) {
+        $id_enc = $this->idencrypt->encrypt($equipo->id_equipos);
+        redirect('panel/orden_mantenimiento/'.$id_enc);
+      } else {
+        $data['title'] = ucfirst("Error");
+        $this->load->view('templates/header', $data);
+        $this->load->view('panel/detalles404');
+        $this->load->view('templates/footer', $data);
+      }
     }
   }
+  
   public function todos_mantenimiento($tipo_equipo, $id_grupo){
     $id_tipo = $this->obtenerIdTipoEquipo($tipo_equipo);
     $equipo = $this->Grupo_model->obtenerIdAsignado($id_grupo, $id_tipo);
+    
     if($equipo == null){
       $data['title'] = ucfirst("Error"); //Capitalizar la primera letra
 
       $this->load->view('templates/header', $data);
       $this->load->view('panel/detalles404');
       $this->load->view('templates/footer', $data);
-    }else{
-    $id_enc =$this->idencrypt->encrypt($equipo->id_equipos);
-    redirect('orden/ver_ordenesEquipo/'.$id_enc);
+    } else {
+      // Verificar que el objeto tenga la propiedad id_equipos
+      if (isset($equipo->id_equipos)) {
+        $id_enc = $this->idencrypt->encrypt($equipo->id_equipos);
+        redirect('orden/ver_ordenesEquipo/'.$id_enc);
+      } else {
+        $data['title'] = ucfirst("Error");
+        $this->load->view('templates/header', $data);
+        $this->load->view('panel/detalles404');
+        $this->load->view('templates/footer', $data);
+      }
     }
   }
 
   protected function obtenerIdTipoEquipo($tipo_equipo){
-    switch($tipo_equipo){
-      case 'CPU':
-        $id_tipo = 2;
-      break;
-      case 'MONITOR':
-        $id_tipo = 1;
-      break;
-      case 'TECLADO':
-        $id_tipo = 4;
-      break;
-      case 'MOUSE':
-        $id_tipo = 3;
-      break;
-      case 'CABLE':
-        $id_tipo = 16;
-      break;
-      default:
-        $id_tipo = 0;
+    $id_tipo = 0; // Valor por defecto
+    
+    if (is_string($tipo_equipo) || is_numeric($tipo_equipo)) {
+      switch(strval($tipo_equipo)){ // Convertir a string para el switch
+        case 'CPU':
+          $id_tipo = 2;
+        break;
+        case 'MONITOR':
+          $id_tipo = 1;
+        break;
+        case 'TECLADO':
+          $id_tipo = 4;
+        break;
+        case 'MOUSE':
+          $id_tipo = 3;
+        break;
+        case 'CABLE':
+          $id_tipo = 16;
+        break;
+        default:
+          $id_tipo = 0;
+      }
     }
     return $id_tipo;
   }
 }
-
 
 /* End of file Grupos.php */
 /* Location: ./application/controllers/Grupos.php */
