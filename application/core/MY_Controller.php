@@ -16,7 +16,9 @@ class MY_Controller extends CI_Controller {
     public $input;
     public $lang;
     public $db;
-    public $load;  // <-- Agregamos esta línea
+    public $load;
+    public $session;
+    public $form_validation;
     
     public function __construct() {
         parent::__construct();

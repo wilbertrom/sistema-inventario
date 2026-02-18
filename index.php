@@ -313,18 +313,24 @@ break;
  * And away we go...
  */
 require_once BASEPATH.'core/CodeIgniter.php';
-if (PHP_VERSION_ID >= 80200 && class_exists('CI_DB_mysqli_driver')) {
-    // Forzar la propiedad failover para que no sea dinámica
-    $CI =& get_instance();
-    if (isset($CI->db) && !property_exists($CI->db, 'failover')) {
-        $reflection = new ReflectionClass($CI->db);
-        if (!$reflection->hasProperty('failover')) {
-            eval('
-                #[AllowDynamicProperties]
-                class CI_DB_mysqli_driver_Patch extends CI_DB_mysqli_driver {
-                    public $failover = array();
-                }
-            ');
-        }
+// Después de definir constantes, antes de require_once
+if (PHP_VERSION_ID >= 80200) {
+    if (!class_exists('CI_DB_mysqli_driver', false)) {
+        eval('
+            #[AllowDynamicProperties]
+            class CI_DB_mysqli_driver {
+                public $failover = array();
+                public $save_queries = true;
+            }
+        ');
+    }
+    if (!class_exists('CI_DB_driver', false)) {
+        eval('
+            #[AllowDynamicProperties]
+            class CI_DB_driver {
+                public $failover = array();
+                public $save_queries = true;
+            }
+        ');
     }
 }

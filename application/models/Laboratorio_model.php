@@ -8,9 +8,6 @@ class Laboratorio_model extends CI_Model {
         parent::__construct();
     }
 
-    /**
-     * Obtener todos los laboratorios
-     */
     public function get_all()
     {
         $query = $this->db->get('laboratorios');
@@ -22,9 +19,6 @@ class Laboratorio_model extends CI_Model {
         return $query->result();
     }
     
-    /**
-     * Obtener laboratorio por ID
-     */
     public function get_by_id($id)
     {
         if (empty($id)) {
@@ -32,25 +26,6 @@ class Laboratorio_model extends CI_Model {
         }
         
         $this->db->where('id', $id);
-        $query = $this->db->get('laboratorios');
-        
-        if ($query === false || $query->num_rows() == 0) {
-            return null;
-        }
-        
-        return $query->row();
-    }
-    
-    /**
-     * Obtener laboratorio por nombre
-     */
-    public function get_by_nombre($nombre)
-    {
-        if (empty($nombre)) {
-            return null;
-        }
-        
-        $this->db->where('nombre', $nombre);
         $query = $this->db->get('laboratorios');
         
         if ($query === false || $query->num_rows() == 0) {

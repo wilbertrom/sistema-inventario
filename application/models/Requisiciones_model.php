@@ -1,57 +1,33 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/**
- *
- * Model Requisiciones_model
- *
- * This Model for ...
- * 
- * @package		CodeIgniter
- * @category	Model
- * @author    
- * @link      
- * @param     ...
- * @return    ...
- *
- */
-
 class Requisiciones_model extends CI_Model {
-
-  // ------------------------------------------------------------------------
 
   public function __construct()
   {
     parent::__construct();
   }
 
-  // ------------------------------------------------------------------------
-
-  // ------------------------------------------------------------------------
   public function index()
   {
-    // Método vacío
     return;
   }
-
-  // ------------------------------------------------------------------------
   
-  // Crear una nueva requisición
   public function create_requisition($data) 
   {
-    // Verificar que los datos no estén vacíos y sean un array
     if (empty($data) || !is_array($data)) {
         return false;
     }
+    
+    // Agregar laboratorio_id desde sesión
+    $data['laboratorio_id'] = $this->session->userdata('laboratorio_id');
     
     $this->db->insert('requisiciones', $data);
     return $this->db->insert_id();
   }
 
-  // Agregar ítems a una requisición
   public function add_requisition_items($items) 
   {
-    // Verificar que los items no estén vacíos y sean un array
     if (empty($items) || !is_array($items)) {
         return false;
     }
@@ -59,17 +35,16 @@ class Requisiciones_model extends CI_Model {
     return $this->db->insert_batch('items_requisiciones', $items);
   }
 
-  // Obtener todas las requisiciones con sus ítems
   public function get_requisitions() 
   {
     $this->db->select('requisiciones.*, GROUP_CONCAT(items_requisiciones.nombre SEPARATOR ", ") as items')
       ->from('requisiciones')
       ->join('items_requisiciones', 'items_requisiciones.id_req = requisiciones.id_req', 'left')
+      ->where('requisiciones.laboratorio_id', $this->session->userdata('laboratorio_id')) // Filtro
       ->group_by('requisiciones.id_req');
     
     $query = $this->db->get();
     
-    // Verificar que la consulta fue exitosa
     if ($query === false) {
         return array();
     }
@@ -77,10 +52,8 @@ class Requisiciones_model extends CI_Model {
     return $query->result();
   }
 
-  // Obtener una requisición específica con sus ítems
   public function get_requisition($id_req) 
   {
-    // Verificar que el ID no esté vacío
     if (empty($id_req)) {
         return array();
     }
@@ -88,17 +61,38 @@ class Requisiciones_model extends CI_Model {
     $this->db->select('requisiciones.*, items_requisiciones.nombre, items_requisiciones.cantidad')
       ->from('requisiciones')
       ->join('items_requisiciones', 'items_requisiciones.id_req = requisiciones.id_req', 'left')
-      ->where('requisiciones.id_req', $id_req);
+      ->where('requisiciones.id_req', $id_req)
+      ->where('requisiciones.laboratorio_id', $this->session->userdata('laboratorio_id')); // Filtro
     
     $query = $this->db->get();
     
-    // Verificar que la consulta fue exitosa
     if ($query === false) {
         return array();
     }
     
     return $query->result();
   }
+  /**
+ * Contar requisiciones por laboratorio
+ */
+public function contar_requisiciones_por_laboratorio($laboratorio_id)
+{
+    if (empty($laboratorio_id)) {
+        return 0;
+    }
+    $this->db->where('laboratorio_id', $laboratorio_id);
+    return $this->db->count_all_results('requisiciones');
+}
+
+/**
+ * Obtener requisiciones por laboratorio
+ */
+public function obtener_requisiciones_por_laboratorio($laboratorio_id)
+{
+    $this->db->where('laboratorio_id', $laboratorio_id);
+    $query = $this->db->get('requisiciones');
+    return $query->result();
+}
 }
 
 /* End of file Requisiciones_model.php */

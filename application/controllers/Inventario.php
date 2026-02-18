@@ -21,82 +21,105 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class Inventario extends MY_Controller
 {
     
-  public function __construct()
-  {
-    parent::__construct();
-    $this->load->model('Inventario_model');
-    $this->load->helper(array('form', 'url'));
-    $this->load->library('form_validation');
-    $this->load->library('idEncrypt');
-  }
-
-  public function registrar()
-  {
-    $this->form_validation->set_rules('marca', 'Marca', 'required');
-    $this->form_validation->set_rules('cod_interno', 'Cod_interno', 'required');
-    $this->form_validation->set_rules('tipo', 'Tipo', 'required');
-    $this->form_validation->set_rules('estado', 'Estado', 'required');
-
-    if ($this->form_validation->run() == FALSE) {
-      // Si la validación falla, recargar la vista con errores
-      $this->load->view('panel/registrar');
-    } else {
-      // Recoger los datos del formulario
-      $data_equipo = array(
-        'id_marcas' => $this->idencrypt->decrypt($this->input->post('marca')),
-        'cod_interno' => $this->input->post('cod_interno'),
-        'id_tipos' => $this->idencrypt->decrypt($this->input->post('tipo')),
-        'descripcion' => $this->input->post('descripcion'),
-        'id_estados' => $this->idencrypt->decrypt($this->input->post('estado'))
-      );
-
-      // Si el tipo es computadora, recoger los datos adicionales
-      if ($this->input->post('tipo') == 'SFNGM2UyUzVYZ3JTT3ZFTGZRMnlaZz09') {
-        $data_ccompu = array(
-          'procesador' => $this->input->post('procesador'),
-          'tarjeta' => $this->input->post('tarjeta_madre'),
-          'ram' => $this->input->post('ram')
-        );
-
-        // Llamar al modelo para insertar los datos en ccompu y obtener el ID insertado
-        $id_ccompu = $this->Inventario_model->registrar_ccompu($data_ccompu);
-        $data_equipo['id_ccompus'] = $id_ccompu;
-      }
-
-      // Llamar al modelo para insertar los datos en equipos
-      $id_equipo = $this->Inventario_model->registrar_inventario($data_equipo);
-      
-      if ($id_equipo) {
-        // Manejar la carga de la imagen
-        $config['upload_path'] = './recursos-panel/images/equipos/'; // Directorio donde se guardarán las imágenes
-        $config['allowed_types'] = 'jpg|jpeg|png'; // Tipos de archivos permitidos
-        $config['max_size'] = 4096;
-        $config['file_name'] = $id_equipo;
-
-        $this->load->library('upload', $config);
-        $path_img = ''; // Inicializar variable
-
-        if ($this->upload->do_upload('imagen')) {
-          $data_upload = $this->upload->data();
-          $path_img = $data_upload['file_name'];
-
-          $data_update = array(
-            'imagen' => $path_img
-          );
-          $this->Inventario_model->actualizar_imagen_equipo($id_equipo, $data_update);
-        } else {
-          $error = array('error' => $this->upload->display_errors());
-          // Opcional: loguear el error o manejarlo de alguna forma
-        }
-
-        // Redirigir a una página de éxito
-        redirect('panel/ver_inventario');
-      } else {
-        // Mostrar un mensaje de error
-        $this->load->view('panel/registrar', array('error' => 'Error al registrar el inventario.'));
-      }
+/**
+ * Obtener equipos por laboratorio
+ */
+public function obtener_equipos_por_laboratorio($laboratorio_id)
+{
+    if (empty($laboratorio_id)) {
+        log_message('error', 'obtener_equipos_por_laboratorio: laboratorio_id vacío');
+        return array();
     }
-  }
+    
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+    $this->db->from('equipos');
+    $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
+    $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
+    $this->db->join('estados', 'equipos.id_estados = estados.id_estados', 'left');
+    $this->db->where('equipos.laboratorio_id', $laboratorio_id);
+    $this->db->order_by('equipos.id_equipos', 'DESC');
+    
+    $query = $this->db->get();
+    
+    if ($query === false) {
+        log_message('error', 'Error en consulta: ' . $this->db->last_query());
+        return array();
+    }
+    
+    $resultados = $query->result();
+    log_message('debug', "Equipos encontrados para laboratorio $laboratorio_id: " . count($resultados));
+    
+    return $resultados;
+}
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Inventario_model');
+        $this->load->helper(array('form', 'url'));
+        $this->load->library('form_validation');
+        $this->load->library('idEncrypt');
+    }
+
+    public function registrar()
+    {
+        $this->form_validation->set_rules('marca', 'Marca', 'required');
+        $this->form_validation->set_rules('cod_interno', 'Código Interno', 'required');
+        $this->form_validation->set_rules('tipo', 'Tipo', 'required');
+        $this->form_validation->set_rules('estado', 'Estado', 'required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->load->view('panel/registrar');
+        } else {
+            // Recoger datos del formulario
+            $data_equipo = array(
+                'id_marcas' => $this->idencrypt->decrypt($this->input->post('marca')),
+                'cod_interno' => $this->input->post('cod_interno'),
+                'id_tipos' => $this->idencrypt->decrypt($this->input->post('tipo')),
+                'descripcion' => $this->input->post('descripcion'),
+                'id_estados' => $this->idencrypt->decrypt($this->input->post('estado')),
+                'laboratorio_id' => $this->session->userdata('laboratorio_id'),
+                'modelo' => $this->input->post('modelo') ?: null
+            );
+
+            // Si el tipo es computadora, recoger datos adicionales
+            $tipo_id = $this->input->post('tipo');
+            if ($tipo_id == 'SFNGM2UyUzVYZ3JTT3ZFTGZRMnlaZz09') { // ID de computadora encriptado
+                $data_ccompu = array(
+                    'procesador' => $this->input->post('procesador'),
+                    'tarjeta' => $this->input->post('tarjeta_madre'),
+                    'ram' => $this->input->post('ram'),
+                    'disco' => $this->input->post('disco')
+                );
+
+                $id_ccompu = $this->Inventario_model->registrar_ccompu($data_ccompu);
+                $data_equipo['id_ccompus'] = $id_ccompu;
+            }
+
+            $id_equipo = $this->Inventario_model->registrar_inventario($data_equipo);
+            
+            if ($id_equipo) {
+                // Manejar carga de imagen
+                if (!empty($_FILES['imagen']['name'])) {
+                    $config['upload_path'] = './recursos-panel/images/equipos/';
+                    $config['allowed_types'] = 'jpg|jpeg|png';
+                    $config['max_size'] = 4096;
+                    $config['file_name'] = $id_equipo;
+
+                    $this->load->library('upload', $config);
+
+                    if ($this->upload->do_upload('imagen')) {
+                        $upload_data = $this->upload->data();
+                        $this->Inventario_model->actualizar_imagen_equipo($id_equipo, array('imagen' => $upload_data['file_name']));
+                    }
+                }
+                
+                redirect('panel/ver_inventario');
+            } else {
+                $this->load->view('panel/registrar', array('error' => 'Error al registrar el inventario.'));
+            }
+        }
+    }
+
 
   public function editar()
   {

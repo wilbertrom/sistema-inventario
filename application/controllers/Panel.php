@@ -1,6 +1,8 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Panel extends MY_Controller {
+class Panel extends MY_Controller
+{
     
     public function __construct() {
         parent::__construct();
@@ -11,88 +13,55 @@ class Panel extends MY_Controller {
         $this->load->library('idEncrypt');
         $this->load->library('pagination');
 
-        // Verificar si el usuario está logueado
         if (!$this->session->userdata('logged_in')) {
-            // Redirigir al usuario a la página de login
             redirect('login');
         }
     }
 
     public function index() {
-        // Cargar el modelo de inventario
-        $this->load->model('Inventario_model');
+        $laboratorio_id = $this->session->userdata('laboratorio_id');
+        $username = $this->session->userdata('username');
         
-        // Obtener el número de equipos
-        $data['numero_equipos'] = $this->Inventario_model->contar_equipos();
-        
-        // Pasar otros datos necesarios
         $data['title'] = 'Dashboard - Sistema de Inventario';
+        $data['numero_equipos'] = $this->Inventario_model->contar_equipos_por_laboratorio($laboratorio_id);
+        $data['numero_mantenimientos'] = $this->Orden_model->contar_mantenimientos_por_laboratorio($laboratorio_id);
+        $data['numero_requisiciones'] = $this->Requisiciones_model->contar_requisiciones_por_laboratorio($laboratorio_id);
         
-        // Cargar la vista con todos los datos
+        // Obtener nombre del laboratorio
+        $this->load->model('Laboratorio_model');
+        $lab = $this->Laboratorio_model->get_by_id($laboratorio_id);
+        $data['laboratorio_nombre'] = $lab ? $lab->nombre : ($laboratorio_id == 1 ? 'Open Source' : 'Mac');
+        $data['username'] = $username;
+        
         $this->load->view('templates/header', $data);
-        $this->load->view('panel/dashboard', $data); // o tu vista principal
-        $this->load->view('templates/footer');
+        $this->load->view('panel/dashboard', $data);
+        $this->load->view('templates/footer', $data);
     }
 
     public function view($page = 'dashboard') {
         if (!file_exists(APPPATH . 'views/panel/' . $page . '.php')) {
-            // no se tiene una pagina para esa ruta
             show_404();
         }
 
-        $data['title'] = ucfirst($page); //Capitalizar la primera letra
-        $data['numero_equipos'] = $this->Inventario_model->obtenerNumeroEquipos();
-        $data['numero_mantenimientos'] = $this->Orden_model->obtenerNumeroMantenimientos();
-        $data['numero_req'] = $this->Orden_model->obtenerNumeroReq();
-
-        // Inicializar arrays para evitar errores si no hay datos
-        $data['tipos'] = array();
-        $data['marcas'] = array();
-        $data['estados'] = array();
+        $laboratorio_id = $this->session->userdata('laboratorio_id');
+        $data['title'] = ucfirst($page);
+        
+        $data['numero_equipos'] = $this->Inventario_model->contar_equipos_por_laboratorio($laboratorio_id);
+        $data['numero_mantenimientos'] = $this->Orden_model->contar_mantenimientos_por_laboratorio($laboratorio_id);
+        $data['numero_requisiciones'] = $this->Requisiciones_model->contar_requisiciones_por_laboratorio($laboratorio_id);
 
         $tipos = $this->Inventario_model->obtener_tipos();
-        if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
+        $data['tipos'] = array();
+        if (!empty($tipos)) {
             foreach ($tipos as $key => $tipo) {
-                if (is_object($tipo) && isset($tipo->id_tipos)) {
-                    $data['tipos'][$key] = $tipo;
-                    $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
-                }
+                $data['tipos'][$key] = $tipo;
+                $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
             }
         }
 
-        // Obtener tipos y estados si la página es registrar o editar
         if ($page === 'registrar' || $page === 'editar') {
-            $tipos = $this->Inventario_model->obtener_tipos();
-            $estados = $this->Inventario_model->obtener_estados();
-            $marcas = $this->Inventario_model->obtener_marcas();
-
-            // Cifrar los IDs de las marcas antes de pasarlos a la vista
-            if (!empty($marcas) && (is_array($marcas) || is_object($marcas))) {
-                foreach ($marcas as $key => $marca) {
-                    if (is_object($marca) && isset($marca->id_marcas)) {
-                        $data['marcas'][$key] = $marca;
-                        $data['marcas'][$key]->id_marcas = $this->idencrypt->encrypt($marca->id_marcas);
-                    }
-                }
-            }
-
-            if (!empty($estados) && (is_array($estados) || is_object($estados))) {
-                foreach ($estados as $key => $estado) {
-                    if (is_object($estado) && isset($estado->id_estados)) {
-                        $data['estados'][$key] = $estado;
-                        $data['estados'][$key]->id_estados = $this->idencrypt->encrypt($estado->id_estados);
-                    }
-                }
-            }
-
-            if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
-                foreach ($tipos as $key => $tipo) {
-                    if (is_object($tipo) && isset($tipo->id_tipos)) {
-                        $data['tipos'][$key] = $tipo;
-                        $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
-                    }
-                }
-            }
+            $data['marcas'] = $this->Inventario_model->obtener_marcas();
+            $data['estados'] = $this->Inventario_model->obtener_estados();
         }
 
         $this->load->view('templates/header', $data);
@@ -100,45 +69,35 @@ class Panel extends MY_Controller {
         $this->load->view('templates/footer', $data);
     }
 
-    // Obtener equipos si la página es ver_inventario
     public function ver_inventario($page = 0) {
+        $laboratorio_id = $this->session->userdata('laboratorio_id');
         $data['title'] = "Ver Inventario";
 
-        // Inicializar arrays
-        $data['tipos'] = array();
-        $data['equipos'] = array();
-
         $tipos = $this->Inventario_model->obtener_tipos();
-        if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
-            foreach ($tipos as $key => $tipo) {
-                if (is_object($tipo) && isset($tipo->id_tipos)) {
-                    $data['tipos'][$key] = $tipo;
-                    $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
-                }
-            }
+        $data['tipos'] = array();
+        foreach ($tipos as $key => $tipo) {
+            $data['tipos'][$key] = $tipo;
+            $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
         }
 
-        // Configuración de la paginación
-        $total_rows = $this->Inventario_model->obtenerNumeroEquipos();
-        $total_rows = is_numeric($total_rows) ? (int)$total_rows : 0;
-
-        $config = array();
+        $total_rows = $this->Inventario_model->contar_equipos_por_laboratorio($laboratorio_id);
+        
         $config['base_url'] = base_url('panel/ver_inventario');
         $config['total_rows'] = $total_rows;
         $config['per_page'] = 10;
         $config['uri_segment'] = 3;
-
-        // Configuración de los enlaces de paginación con el estilo deseado
-        $config['full_tag_open'] = '<nav aria-label="Page navigation example"><ul class="pagination justify-content-end">';
+        
+        // Configuración de paginación con bootstrap
+        $config['full_tag_open'] = '<nav><ul class="pagination">';
         $config['full_tag_close'] = '</ul></nav>';
         $config['first_link'] = 'Primero';
         $config['last_link'] = 'Último';
         $config['first_tag_open'] = '<li class="page-item">';
         $config['first_tag_close'] = '</li>';
-        $config['prev_link'] = 'Previous';
+        $config['prev_link'] = '&laquo;';
         $config['prev_tag_open'] = '<li class="page-item">';
         $config['prev_tag_close'] = '</li>';
-        $config['next_link'] = 'Next';
+        $config['next_link'] = '&raquo;';
         $config['next_tag_open'] = '<li class="page-item">';
         $config['next_tag_close'] = '</li>';
         $config['last_tag_open'] = '<li class="page-item">';
@@ -151,131 +110,104 @@ class Panel extends MY_Controller {
         
         $this->pagination->initialize($config);
 
-        $equipos = $this->Inventario_model->obtener_equipos_paginados($config['per_page'], (int)$page);
-        
-        if (!empty($equipos) && (is_array($equipos) || is_object($equipos))) {
-            foreach ($equipos as $key => $equipo) {
-                if (is_object($equipo) && isset($equipo->id_equipos)) {
-                    $data['equipos'][$key] = $equipo;
-                    $data['equipos'][$key]->id_equipos = $this->idencrypt->encrypt($equipo->id_equipos);
-                }
-            }
-        }
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('panel/ver_inventario', $data);
-        $this->load->view('templates/footer', $data);
-    }
-
-    public function filtrar_inventario($page = 0) {
-        $tipo_s = $this->input->post('tipo');
-        $data['tipo_seleccionado'] = $tipo_s;
-        
-        if (empty($tipo_s)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-        
-        $tipo_s_decrypted = $this->idencrypt->decrypt($tipo_s);
-
-        if (empty($tipo_s_decrypted)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-
-        // Inicializar arrays
-        $data['tipos'] = array();
-        $data['equipos'] = array();
-
-        $tipos = $this->Inventario_model->obtener_tipos();
-        if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
-            foreach ($tipos as $key => $tipo) {
-                if (is_object($tipo) && isset($tipo->id_tipos)) {
-                    $data['tipos'][$key] = $tipo;
-                    $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
-                }
-            }
-        }
-
-        $data['title'] = 'Inventario Filtrado';
-
-        if ($tipo_s_decrypted) {
-            $equipos = $this->Inventario_model->obtener_equipos_por_tipo($tipo_s_decrypted);
+        // Usar el método correcto según lo que tengas en el modelo
+        if (method_exists($this->Inventario_model, 'obtener_equipos_por_laboratorio_paginados')) {
+            $equipos = $this->Inventario_model->obtener_equipos_por_laboratorio_paginados($laboratorio_id, $config['per_page'], $page);
         } else {
-            $equipos = $this->Inventario_model->obtener_equipos();
+            // Fallback al método existente
+            $equipos = $this->Inventario_model->obtener_equipos_paginados($config['per_page'], $page);
         }
-
-        if (!empty($equipos) && (is_array($equipos) || is_object($equipos))) {
-            foreach ($equipos as $key => $equipo) {
-                if (is_object($equipo) && isset($equipo->id_equipos)) {
-                    $data['equipos'][$key] = $equipo;
-                    $data['equipos'][$key]->id_equipos = $this->idencrypt->encrypt($equipo->id_equipos);
-                }
-            }
+        
+        $data['equipos'] = array();
+        foreach ($equipos as $key => $equipo) {
+            $data['equipos'][$key] = $equipo;
+            $data['equipos'][$key]->id_equipos = $this->idencrypt->encrypt($equipo->id_equipos);
         }
 
         $this->load->view('templates/header', $data);
         $this->load->view('panel/ver_inventario', $data);
         $this->load->view('templates/footer', $data);
     }
-
-    public function buscar_inventario() {
-        $Codigo_interno = $this->input->post("cInterno");
-
-        if (empty($Codigo_interno)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-
-        // Inicializar arrays
-        $data['tipos'] = array();
-        $data['equipos'] = array();
-
-        $tipos = $this->Inventario_model->obtener_tipos();
-        if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
-            foreach ($tipos as $key => $tipo) {
-                if (is_object($tipo) && isset($tipo->id_tipos)) {
-                    $data['tipos'][$key] = $tipo;
-                    $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
-                }
+    
+    /**
+     * Método de depuración para verificar sesión y equipos
+     */
+    public function debug_session()
+    {
+        echo "<h3>🔍 DEPURACIÓN DEL SISTEMA</h3>";
+        echo "<hr>";
+        
+        echo "<h4>📌 DATOS DE SESIÓN:</h4>";
+        echo "Usuario: <strong>" . $this->session->userdata('username') . "</strong><br>";
+        echo "User ID: <strong>" . $this->session->userdata('user_id') . "</strong><br>";
+        echo "Laboratorio ID en sesión: <strong>" . $this->session->userdata('laboratorio_id') . "</strong><br>";
+        echo "Laboratorio Nombre: <strong>" . $this->session->userdata('laboratorio_nombre') . "</strong><br>";
+        echo "Rol: <strong>" . $this->session->userdata('rol') . "</strong><br>";
+        echo "Logged In: <strong>" . ($this->session->userdata('logged_in') ? '✅ SI' : '❌ NO') . "</strong><br>";
+        
+        echo "<hr>";
+        echo "<h4>📊 ESTADÍSTICAS:</h4>";
+        
+        $lab_id = $this->session->userdata('laboratorio_id');
+        
+        // Contar equipos directamente con consulta
+        $this->db->where('laboratorio_id', $lab_id);
+        $total_equipos_db = $this->db->count_all_results('equipos');
+        echo "Total equipos en DB para laboratorio $lab_id: <strong>$total_equipos_db</strong><br>";
+        
+        // Usar método del modelo
+        $total_equipos_modelo = $this->Inventario_model->contar_equipos_por_laboratorio($lab_id);
+        echo "Total equipos según modelo: <strong>$total_equipos_modelo</strong><br>";
+        
+        echo "<hr>";
+        echo "<h4>🔧 EQUIPOS EN LABORATORIO $lab_id:</h4>";
+        
+        // Consulta directa a la base de datos
+        $equipos_db = $this->db->select('e.*, m.nombre as marca, t.nombre as tipo')
+                               ->from('equipos e')
+                               ->join('marcas m', 'e.id_marcas = m.id_marcas', 'left')
+                               ->join('tipos t', 'e.id_tipos = t.id_tipos', 'left')
+                               ->where('e.laboratorio_id', $lab_id)
+                               ->limit(10)
+                               ->get()
+                               ->result();
+        
+        if (count($equipos_db) > 0) {
+            echo "<table border='1' cellpadding='5' style='border-collapse: collapse;'>";
+            echo "<tr><th>ID</th><th>Código</th><th>Tipo</th><th>Marca</th><th>Modelo</th></tr>";
+            foreach($equipos_db as $e) {
+                echo "<tr>";
+                echo "<td>{$e->id_equipos}</td>";
+                echo "<td>{$e->cod_interno}</td>";
+                echo "<td>{$e->tipo}</td>";
+                echo "<td>{$e->marca}</td>";
+                echo "<td>{$e->modelo}</td>";
+                echo "</tr>";
             }
+            echo "</table>";
+        } else {
+            echo "<p style='color:red; font-weight:bold;'>❌ NO HAY EQUIPOS para este laboratorio</p>";
         }
-
-        $data['title'] = 'Busqueda: ' . $Codigo_interno;
-
-        $equipos = $this->Inventario_model->obtener_equipos_por_codigo($Codigo_interno);
-
-        if (!empty($equipos) && (is_array($equipos) || is_object($equipos))) {
-            foreach ($equipos as $key => $equipo) {
-                if (is_object($equipo) && isset($equipo->id_equipos)) {
-                    $data['equipos'][$key] = $equipo;
-                    $data['equipos'][$key]->id_equipos = $this->idencrypt->encrypt($equipo->id_equipos);
-                }
-            }
-        }
-
-        $data['codigo_buscado'] = $Codigo_interno;
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('panel/ver_inventario', $data);
-        $this->load->view('templates/footer', $data);
+        
+        echo "<hr>";
+        echo "<h4>📋 ÚLTIMA CONSULA SQL:</h4>";
+        echo "<pre>" . $this->db->last_query() . "</pre>";
+        
+        echo "<hr>";
+        echo "<p><a href='" . base_url('panel/ver_inventario') . "'>➡️ Ir a Ver Inventario</a></p>";
     }
 
     public function detalles($id) {
-        $data['title'] = ucfirst("Detalles");
-        $data['id_enc'] = $id;
-        
+        $laboratorio_id = $this->session->userdata('laboratorio_id');
         $id_decrypted = $this->idencrypt->decrypt($id);
         
-        if (empty($id_decrypted)) {
-            show_404();
-            return;
-        }
-        
+        $data['title'] = "Detalles del Equipo";
+        $data['id_enc'] = $id;
         $data['equipo'] = $this->Inventario_model->obtener_equipo_computo($id_decrypted);
         
-        if (empty($data['equipo'])) {
-            $data['equipo'] = null; // Para manejar en la vista
+        if (!$data['equipo'] || $data['equipo']->laboratorio_id != $laboratorio_id) {
+            show_404();
+            return;
         }
 
         $this->load->view('templates/header', $data);
@@ -284,81 +216,25 @@ class Panel extends MY_Controller {
     }
 
     public function editar($id) {
-        if (empty($id)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-
-        $data['title'] = ucfirst("Editar");
-        
-        // Inicializar arrays
-        $data['tipos'] = array();
-        $data['estados'] = array();
-        $data['marcas'] = array();
-
-        $tipos = $this->Inventario_model->obtener_tipos();
-        $estados = $this->Inventario_model->obtener_estados();
-        $marcas = $this->Inventario_model->obtener_marcas();
-
-        if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
-            $data['tipos'] = $tipos;
-        }
-
-        if (!empty($estados) && (is_array($estados) || is_object($estados))) {
-            $data['estados'] = $estados;
-        }
-
-        if (!empty($marcas) && (is_array($marcas) || is_object($marcas))) {
-            $data['marcas'] = $marcas;
-        }
-
+        $laboratorio_id = $this->session->userdata('laboratorio_id');
         $id_decrypted = $this->idencrypt->decrypt($id);
         
-        if (empty($id_decrypted)) {
-            redirect('panel/ver_inventario');
+        $data['title'] = "Editar Equipo";
+        $data['tipos'] = $this->Inventario_model->obtener_tipos();
+        $data['estados'] = $this->Inventario_model->obtener_estados();
+        $data['marcas'] = $this->Inventario_model->obtener_marcas();
+        
+        $equipo = $this->Inventario_model->obtener_equipo_computo($id_decrypted);
+        if (!$equipo || $equipo->laboratorio_id != $laboratorio_id) {
+            show_404();
             return;
         }
-
-        $data['equipo'] = $this->Inventario_model->obtener_equipo_computo($id_decrypted);
         
-        if (!empty($data['equipo']) && is_object($data['equipo'])) {
-            $data['equipo']->id_equipos = $id;
-        } else {
-            $data['equipo'] = null;
-        }
+        $data['equipo'] = $equipo;
+        $data['equipo']->id_equipos = $id;
 
         $this->load->view('templates/header', $data);
         $this->load->view('panel/editar', $data);
-        $this->load->view('templates/footer', $data);
-    }
-
-    public function orden_mantenimiento($id) {
-        if (empty($id)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-
-        $data['estados'] = $this->Inventario_model->obtener_estados();
-
-        $id_decrypted = $this->idencrypt->decrypt($id);
-        
-        if (empty($id_decrypted)) {
-            redirect('panel/ver_inventario');
-            return;
-        }
-
-        $data['equipo'] = $this->Inventario_model->obtener_info_equipo($id_decrypted);
-        
-        if (!empty($data['equipo']) && is_object($data['equipo'])) {
-            $data['equipo']->id_equipos = $id;
-        } else {
-            $data['equipo'] = null;
-        }
-        
-        $data['title'] = ucfirst("Mantenimiento");
-
-        $this->load->view('templates/header', $data);
-        $this->load->view('panel/orden/mantenimiento', $data);
         $this->load->view('templates/footer', $data);
     }
 }

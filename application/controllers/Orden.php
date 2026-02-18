@@ -18,7 +18,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  *
  */
 
-class Orden extends MY_Controller
+class Orden extends CI_Controller
 {
     
   public function __construct()

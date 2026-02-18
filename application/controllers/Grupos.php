@@ -18,7 +18,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  *
  */
 
-class Grupos extends MY_Controller
+class Grupos extends CI_Controller
 {
     
   public function __construct()

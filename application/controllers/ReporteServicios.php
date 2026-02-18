@@ -18,7 +18,7 @@ require_once APPPATH . 'libraries/fpdf/fpdf.php';
  *
  */
 
-class ReporteServicios extends MY_Controller
+class ReporteServicios extends CI_Controller
 {
     public function __construct()
     {
