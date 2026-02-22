@@ -214,7 +214,46 @@ class Panel extends MY_Controller
         $this->load->view('panel/detalles', $data);
         $this->load->view('templates/footer', $data);
     }
+public function buscar_inventario() {
+    $Codigo_interno = $this->input->post("cInterno");
 
+    if (empty($Codigo_interno)) {
+        redirect('panel/ver_inventario');
+        return;
+    }
+
+    $data['tipos'] = array();
+    $data['equipos'] = array();
+
+    $tipos = $this->Inventario_model->obtener_tipos();
+    if (!empty($tipos) && (is_array($tipos) || is_object($tipos))) {
+        foreach ($tipos as $key => $tipo) {
+            if (is_object($tipo) && isset($tipo->id_tipos)) {
+                $data['tipos'][$key] = $tipo;
+                $data['tipos'][$key]->id_tipos = $this->idencrypt->encrypt($tipo->id_tipos);
+            }
+        }
+    }
+
+    $data['title'] = 'Busqueda: ' . $Codigo_interno;
+
+    $equipos = $this->Inventario_model->obtener_equipos_por_codigo($Codigo_interno);
+
+    if (!empty($equipos) && (is_array($equipos) || is_object($equipos))) {
+        foreach ($equipos as $key => $equipo) {
+            if (is_object($equipo) && isset($equipo->id_equipos)) {
+                $data['equipos'][$key] = $equipo;
+                $data['equipos'][$key]->id_equipos = $this->idencrypt->encrypt($equipo->id_equipos);
+            }
+        }
+    }
+
+    $data['codigo_buscado'] = $Codigo_interno;
+
+    $this->load->view('templates/header', $data);
+    $this->load->view('panel/ver_inventario', $data);
+    $this->load->view('templates/footer', $data);
+}
     public function editar($id) {
         $laboratorio_id = $this->session->userdata('laboratorio_id');
         $id_decrypted = $this->idencrypt->decrypt($id);
