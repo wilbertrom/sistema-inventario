@@ -8,115 +8,44 @@ class ProgramaAnualDetalle_model extends CI_Model {
         parent::__construct();
     }
 
-    /**
-     * Obtener meses por programa
-     */
-    public function getMesesByPrograma($programa_id)
+    public function getActividades($programa_id)
     {
-        if (empty($programa_id)) {
-            return array();
-        }
+        $this->db->select('actividad_id, actividad_nombre, observaciones');
+        $this->db->where('programa_id', $programa_id);
+        $this->db->group_by('actividad_id');
+        $this->db->order_by('actividad_id', 'ASC');
+        $query = $this->db->get('programa_anual_mantenimiento_detalle');
+        return $query->result();
+    }
+
+    public function getMesesByActividad($programa_id, $actividad_id, $estatus)
+    {
+        $this->db->select('mes');
+        $this->db->where('programa_id', $programa_id);
+        $this->db->where('actividad_id', $actividad_id);
+        $this->db->where('estatus', $estatus);
+        $query = $this->db->get('programa_anual_mantenimiento_detalle');
         
-        return $this->db
-            ->where('programa_id', $programa_id)
-            ->order_by('mes', 'ASC')
-            ->get('programa_anual_mantenimiento_detalle')
-            ->result();
+        $meses = array();
+        foreach ($query->result() as $row) {
+            $meses[] = $row->mes;
+        }
+        return $meses;
     }
 
     /**
-     * Obtener detalle por programa y mes
-     */
-    public function getByProgramaMes($programa_id, $mes)
-    {
-        if (empty($programa_id) || empty($mes)) {
-            return null;
-        }
-        
-        return $this->db
-            ->where('programa_id', $programa_id)
-            ->where('mes', $mes)
-            ->get('programa_anual_mantenimiento_detalle')
-            ->row();
-    }
-
-    /**
-     * Marcar/Actualizar mes
-     */
-    public function marcarMes($programa_id, $mes, $estatus = 'PLANEADO', $observaciones = null)
-    {
-        if (empty($programa_id) || empty($mes)) {
-            return false;
-        }
-        
-        // Validar estatus
-        $estatus_validos = ['PLANEADO', 'EN_PROCESO', 'COMPLETADO', 'CANCELADO', 'PENDIENTE'];
-        if (!in_array($estatus, $estatus_validos)) {
-            $estatus = 'PLANEADO';
-        }
-        
-        $data = [
-            'estatus' => $estatus,
-            'updated_at' => date('Y-m-d H:i:s')
-        ];
-        
-        if ($observaciones !== null) {
-            $data['observaciones'] = $observaciones;
-        }
-        
-        $existe = $this->getByProgramaMes($programa_id, $mes);
-        
-        if ($existe) {
-            $this->db->where('id', $existe->id)->update('programa_anual_mantenimiento_detalle', $data);
-            return $existe->id;
-        } else {
-            $data['programa_id'] = $programa_id;
-            $data['mes'] = $mes;
-            $data['created_at'] = date('Y-m-d H:i:s');
-            
-            $this->db->insert('programa_anual_mantenimiento_detalle', $data);
-            return $this->db->insert_id();
-        }
-    }
-
-    /**
-     * Marcar múltiples meses a la vez
-     */
-    public function marcarMesesBatch($programa_id, $meses, $estatus = 'PLANEADO')
-    {
-        if (empty($programa_id) || empty($meses)) {
-            return false;
-        }
-        
-        $resultados = array();
-        foreach ($meses as $mes) {
-            $resultados[] = $this->marcarMes($programa_id, $mes, $estatus);
-        }
-        
-        return $resultados;
-    }
-
-    /**
-     * Obtener resumen de estatus por programa
+     * NUEVO MÉTODO: Obtener resumen de estatus
      */
     public function getResumenEstatus($programa_id)
     {
-        if (empty($programa_id)) {
-            return array();
-        }
-        
         $this->db->select('estatus, COUNT(*) as total');
         $this->db->where('programa_id', $programa_id);
         $this->db->group_by('estatus');
-        
         $query = $this->db->get('programa_anual_mantenimiento_detalle');
         
         $resumen = array(
             'PLANEADO' => 0,
-            'EN_PROCESO' => 0,
-            'COMPLETADO' => 0,
-            'CANCELADO' => 0,
-            'PENDIENTE' => 0,
+            'REALIZADO' => 0,
             'TOTAL' => 0
         );
         
@@ -128,29 +57,61 @@ class ProgramaAnualDetalle_model extends CI_Model {
         return $resumen;
     }
 
-    /**
-     * Eliminar detalle
-     */
-    public function deleteDetalle($id)
+    public function guardarActividad($programa_id, $actividad_id, $actividad_nombre, $meses_planeados, $meses_realizados, $observaciones)
     {
-        if (empty($id)) {
-            return false;
+        $this->db->where('programa_id', $programa_id);
+        $this->db->where('actividad_id', $actividad_id);
+        $this->db->delete('programa_anual_mantenimiento_detalle');
+        
+        $insertados = 0;
+        
+        if (!empty($meses_planeados)) {
+            foreach ($meses_planeados as $mes) {
+                $data = array(
+                    'programa_id' => $programa_id,
+                    'actividad_id' => $actividad_id,
+                    'actividad_nombre' => $actividad_nombre,
+                    'mes' => $mes,
+                    'estatus' => 'PLANEADO',
+                    'observaciones' => $observaciones
+                );
+                if ($this->db->insert('programa_anual_mantenimiento_detalle', $data)) {
+                    $insertados++;
+                }
+            }
         }
         
-        $this->db->where('id', $id);
-        return $this->db->delete('programa_anual_mantenimiento_detalle');
+        if (!empty($meses_realizados)) {
+            foreach ($meses_realizados as $mes) {
+                $this->db->where('programa_id', $programa_id);
+                $this->db->where('actividad_id', $actividad_id);
+                $this->db->where('mes', $mes);
+                $this->db->where('estatus', 'PLANEADO');
+                $existe = $this->db->get('programa_anual_mantenimiento_detalle')->row();
+                
+                if (!$existe) {
+                    $data = array(
+                        'programa_id' => $programa_id,
+                        'actividad_id' => $actividad_id,
+                        'actividad_nombre' => $actividad_nombre,
+                        'mes' => $mes,
+                        'estatus' => 'REALIZADO',
+                        'observaciones' => $observaciones
+                    );
+                    if ($this->db->insert('programa_anual_mantenimiento_detalle', $data)) {
+                        $insertados++;
+                    }
+                }
+            }
+        }
+        
+        return $insertados > 0;
     }
 
-    /**
-     * Eliminar todos los detalles de un programa
-     */
-    public function deleteByPrograma($programa_id)
+    public function eliminarActividad($programa_id, $actividad_id)
     {
-        if (empty($programa_id)) {
-            return false;
-        }
-        
         $this->db->where('programa_id', $programa_id);
+        $this->db->where('actividad_id', $actividad_id);
         return $this->db->delete('programa_anual_mantenimiento_detalle');
     }
 }

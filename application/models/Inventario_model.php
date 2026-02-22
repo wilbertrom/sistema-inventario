@@ -348,10 +348,12 @@ public function obtener_equipos_paginados($limit, $start)
   }
 
   public function obtener_equipos_por_codigo($codigo_interno)
-  {
+{
     if (empty($codigo_interno)) {
         return array();
     }
+    
+    $laboratorio_id = $this->session->userdata('laboratorio_id');
     
     $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
     $this->db->from('equipos');
@@ -359,7 +361,7 @@ public function obtener_equipos_paginados($limit, $start)
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
     $this->db->join('estados', 'equipos.id_estados = estados.id_estados', 'left');
     $this->db->like('cod_interno', $codigo_interno);
-    $this->db->where('equipos.laboratorio_id', $this->session->userdata('laboratorio_id')); // Filtro
+    $this->db->where('equipos.laboratorio_id', $laboratorio_id);
     
     $query = $this->db->get();
     
@@ -368,7 +370,7 @@ public function obtener_equipos_paginados($limit, $start)
     }
     
     return $query->result();
-  }
+}
   
   /**
    * Contar equipos (para dashboard)

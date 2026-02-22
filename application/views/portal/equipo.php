@@ -22,7 +22,7 @@
     </div>
 
     <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-      <!-- Card-->
+      <!-- Card-->  
       <div class="card shadow-sm border-0 rounded">
         <div class="card-body p-0"><img src="<?php echo base_url('recursos-portal/images/fotos equipo/')?>foto_Jared.png" alt="Foto Adrián" class="w-100 card-img-top">
           <div class="p-4">
