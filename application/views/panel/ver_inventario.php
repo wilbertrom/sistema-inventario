@@ -1,3 +1,4 @@
+
 <style>
 :root{--rojo:#a52119;--rojo-mid:#c0392b;--rojo-light:#fdf1f0;--gris-bg:#f5f6f8;--gris-borde:#e2e8f0;--texto-dark:#1e293b;--texto-mid:#475569;--sombra-sm:0 2px 8px rgba(0,0,0,0.06);--radio:14px;--radio-sm:8px;}
 .main-content{background:var(--gris-bg);min-height:calc(100vh - 81px);}
@@ -122,25 +123,13 @@ table.inv-t td{padding:12px 16px;font-size:13.5px;color:var(--texto-mid);vertica
                 </td>
                 <td style="text-align:center;white-space:nowrap;">
                     <a href="<?php echo base_url('panel/detalles/'.$equipo->id_equipos); ?>"
-                       class="ac-btn ab-info" title="Ver detalles"><i class="fas fa-eye"></i></a>
+                       class="ac-btn ab-info" title="Ver detalles"><i class="zmdi zmdi-eye"></i></a>
                     <a href="<?php echo base_url('panel/editar/'.$equipo->id_equipos); ?>"
-                       class="ac-btn ab-edit" title="Editar"><i class="fas fa-pen"></i></a>
+                       class="ac-btn ab-edit" title="Editar"><i class="zmdi zmdi-edit"></i></a>
                     <a href="<?php echo base_url('inventario/eliminar/'.$equipo->id_equipos); ?>"
                        class="ac-btn ab-del" title="Eliminar"
-                       onclick="return confirm('¿Eliminar este equipo?')"><i class="fas fa-trash"></i></a>
-                    <div class="dropdown d-inline-block">
-                        <button class="ac-btn ab-more" title="Más opciones" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="<?php echo base_url('panel/orden_mantenimiento/'.$equipo->id_equipos); ?>">
-                                <i class="fas fa-tools" style="color:var(--rojo);"></i> Orden mantenimiento
-                            </a>
-                            <a class="dropdown-item" href="<?php echo base_url('orden/ver_ordenesEquipo/'.$equipo->id_equipos); ?>">
-                                <i class="fas fa-list" style="color:#2563eb;"></i> Ver órdenes
-                            </a>
-                        </div>
-                    </div>
+                       onclick="return confirm('¿Eliminar este equipo?')"><i class="zmdi zmdi-delete"></i></a>
+                    
                 </td>
             </tr>
             <?php endforeach; ?>

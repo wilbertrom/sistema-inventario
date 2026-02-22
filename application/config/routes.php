@@ -99,6 +99,7 @@ $route['programa-anual/guardar_actividad']                  = 'ProgramaAnual/gua
 $route['programa-anual/eliminar/(:num)']                    = 'ProgramaAnual/eliminar/$1';
 $route['programa-anual/eliminar_actividad/(:num)/(:num)']   = 'ProgramaAnual/eliminar_actividad/$1/$2';
 $route['programa-anual/pdf/(:num)']                         = 'ProgramaAnual/pdf/$1';
+$route['programa-anual/guardar_firmas'] = 'programaanual/guardar_firmas';
 
 // ============================================
 // ORDEN DE MANTENIMIENTO

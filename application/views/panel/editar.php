@@ -8,12 +8,12 @@
 .form-card{background:white;border-radius:var(--radio);box-shadow:var(--sombra-sm);border:1px solid var(--gris-borde);overflow:hidden;}
 .form-card-body{padding:28px;}
 .f-label{font-size:13px;font-weight:600;color:var(--texto-dark);margin-bottom:6px;display:block;}
-.f-control{border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:10px 14px;font-size:13.5px;color:var(--texto-dark);transition:border-color .2s,box-shadow .2s;width:100%;}
+.f-control{border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:10px 14px;font-size:13.5px;color:var(--texto-dark);transition:border-color .2s,box-shadow .2s;width:100%;background:white;}
 .f-control:focus{border-color:var(--rojo);box-shadow:0 0 0 3px rgba(165,33,25,.1);outline:none;}
 .f-group{margin-bottom:20px;}
-.input-with-btn{display:flex;gap:0;}
+.input-with-btn{display:flex;}
 .input-with-btn .f-control{border-radius:var(--radio-sm) 0 0 var(--radio-sm);flex:1;}
-.input-with-btn .btn-append{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:0 var(--radio-sm) var(--radio-sm) 0;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.input-with-btn .btn-append{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:0 var(--radio-sm) var(--radio-sm) 0;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
 .btn-r{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:var(--radio-sm);padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .25s;text-decoration:none;}
 .btn-r:hover{box-shadow:0 6px 18px rgba(165,33,25,.3);transform:translateY(-1px);color:white;text-decoration:none;}
 .btn-g{background:#f1f5f9;color:var(--texto-mid);border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s;text-decoration:none;}
@@ -23,6 +23,9 @@
 .extra-fields h6 i{color:var(--rojo);}
 .divider{height:1px;background:var(--gris-borde);margin:24px 0;}
 .form-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.alert-m{border-radius:var(--radio-sm);padding:12px 18px;font-size:13.5px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.alert-e{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
+.alert-s{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
 </style>
 
 <div class="main-content">
@@ -40,8 +43,18 @@
     <div class="col-lg-8">
     <div class="form-card">
     <div class="form-card-body">
+
+        <?php if(isset($error)): ?>
+        <div class="alert-m alert-e"><i class="fas fa-exclamation-circle"></i> <?php echo $error; ?></div>
+        <?php endif; ?>
+        <?php if($this->session->flashdata('success')): ?>
+        <div class="alert-m alert-s"><i class="fas fa-check-circle"></i> <?php echo $this->session->flashdata('success'); ?></div>
+        <?php endif; ?>
+        <?php echo validation_errors('<div class="alert-m alert-e"><i class="fas fa-exclamation-circle"></i>','</div>'); ?>
+
         <form action="<?php echo base_url('inventario/editar'); ?>" method="post" enctype="multipart/form-data">
-            <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
+            <!-- IDs ocultos -->
+            <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
             <input type="hidden" name="id_ccompus" value="<?php echo $equipo->id_ccompus; ?>">
 
             <!-- Marca -->
@@ -49,9 +62,10 @@
                 <label class="f-label">Marca <span style="color:var(--rojo);">*</span></label>
                 <div class="input-with-btn">
                     <select name="marca" class="f-control" required>
-                        <option value="">Seleccione una marca</option>
+                        <option value="" disabled>Seleccione una marca</option>
                         <?php foreach($marcas as $marca): ?>
-                        <option value="<?php echo $marca->id_marcas; ?>" <?php echo ($marca->id_marcas == $equipo->id_marcas) ? 'selected' : ''; ?>>
+                        <option value="<?php echo $marca->id_marcas; ?>"
+                                <?php echo ($marca->id_marcas == $equipo->id_marcas) ? 'selected' : ''; ?>>
                             <?php echo $marca->nombre; ?>
                         </option>
                         <?php endforeach; ?>
@@ -66,10 +80,11 @@
             <div class="f-group">
                 <label class="f-label">Tipo <span style="color:var(--rojo);">*</span></label>
                 <div class="input-with-btn">
-                    <select id="tipo" name="tipo" class="f-control" onchange="toggleComputerFields()" required>
-                        <option value="">Seleccione un tipo</option>
+                    <select name="tipo" id="tipo" class="f-control" required>
+                        <option value="" disabled>Seleccione un tipo</option>
                         <?php foreach($tipos as $tipo): ?>
-                        <option value="<?php echo $tipo->id_tipos; ?>" <?php echo ($tipo->id_tipos == $equipo->id_tipos) ? 'selected' : ''; ?>>
+                        <option value="<?php echo $tipo->id_tipos; ?>"
+                                <?php echo ($tipo->id_tipos == $equipo->id_tipos) ? 'selected' : ''; ?>>
                             <?php echo $tipo->nombre; ?>
                         </option>
                         <?php endforeach; ?>
@@ -83,29 +98,13 @@
             <!-- Código interno -->
             <div class="f-group">
                 <label class="f-label">Código Interno <span style="color:var(--rojo);">*</span></label>
-                <input type="text" name="cod_interno" class="f-control" value="<?php echo $equipo->cod_interno; ?>" required>
-            </div>
-
-            <!-- Campos CPU -->
-            <div id="computerFields" class="extra-fields" style="display:none;">
-                <h6><i class="fas fa-microchip"></i> Especificaciones técnicas (CPU)</h6>
-                <div class="f-group">
-                    <label class="f-label">Procesador</label>
-                    <input type="text" id="procesador" name="procesador" class="f-control" value="<?php echo $equipo->procesador; ?>">
-                </div>
-                <div class="f-group">
-                    <label class="f-label">Tarjeta Madre</label>
-                    <input type="text" id="tarjeta_madre" name="tarjeta_madre" class="f-control" value="<?php echo $equipo->tarjeta; ?>">
-                </div>
-                <div class="f-group" style="margin-bottom:0;">
-                    <label class="f-label">RAM</label>
-                    <input type="text" id="ram" name="ram" class="f-control" value="<?php echo $equipo->ram; ?>">
-                </div>
+                <input type="text" name="cod_interno" class="f-control" required
+                       value="<?php echo $equipo->cod_interno; ?>">
             </div>
 
             <!-- Descripción -->
             <div class="f-group">
-                <label class="f-label">Descripción</label>
+                <label class="f-label">Descripción / Observaciones</label>
                 <textarea name="descripcion" class="f-control" rows="3"><?php echo $equipo->descripcion; ?></textarea>
             </div>
 
@@ -113,8 +112,10 @@
             <div class="f-group">
                 <label class="f-label">Estado <span style="color:var(--rojo);">*</span></label>
                 <select name="estado" class="f-control" required>
+                    <option value="" disabled>Seleccione un estado</option>
                     <?php foreach($estados as $estado): ?>
-                    <option value="<?php echo $estado->id_estados; ?>" <?php echo ($estado->id_estados == $equipo->id_estados) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $estado->id_estados; ?>"
+                            <?php echo ($estado->id_estados == $equipo->id_estados) ? 'selected' : ''; ?>>
                         <?php echo $estado->nombre; ?>
                     </option>
                     <?php endforeach; ?>
@@ -123,8 +124,16 @@
 
             <!-- Imagen -->
             <div class="f-group">
-                <label class="f-label">Imagen del equipo</label>
-                <input type="file" name="imagen" class="f-control" style="padding:8px;">
+                <label class="f-label">Imagen del equipo <span style="color:var(--texto-mid);font-weight:400;">(opcional — reemplaza la actual)</span></label>
+                <?php if(!empty($equipo->imagen)): ?>
+                <div style="margin-bottom:10px;">
+                    <img src="<?php echo base_url('recursos-panel/images/equipos/'.$equipo->imagen); ?>"
+                         style="height:60px;border-radius:8px;border:1px solid var(--gris-borde);"
+                         onerror="this.style.display='none'">
+                </div>
+                <?php endif; ?>
+                <input type="file" name="imagen" accept="image/jpeg,image/png"
+                       style="width:100%;border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:8px 12px;background:white;font-size:13px;">
             </div>
 
             <div class="divider"></div>
@@ -144,17 +153,17 @@
 
 <!-- Modal Marca -->
 <div class="modal fade" id="modalAgregarMarca" tabindex="-1" role="dialog">
-    <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
             <h5 class="modal-title" style="font-weight:700;">Nueva Marca</h5>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding:24px;">
             <form action="<?php echo base_url('Inventario/nuevaMarca'); ?>" method="post">
-                <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
+                <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
                 <div class="f-group">
                     <label class="f-label">Nombre de la marca</label>
-                    <input type="text" name="marca" class="f-control" required>
+                    <input type="text" name="marca" class="f-control" required placeholder="Ej: Apple, HP...">
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
                     <button type="button" class="btn-g" data-dismiss="modal">Cancelar</button>
@@ -167,17 +176,17 @@
 
 <!-- Modal Tipo -->
 <div class="modal fade" id="modalAgregarTipo" tabindex="-1" role="dialog">
-    <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
             <h5 class="modal-title" style="font-weight:700;">Nuevo Tipo</h5>
             <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" style="padding:24px;">
             <form action="<?php echo base_url('Inventario/nuevoTipo'); ?>" method="post">
-                <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
+                <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
                 <div class="f-group">
                     <label class="f-label">Nombre del tipo</label>
-                    <input type="text" name="tipo" class="f-control" required>
+                    <input type="text" name="tipo" class="f-control" required placeholder="Ej: Monitor...">
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
                     <button type="button" class="btn-g" data-dismiss="modal">Cancelar</button>
@@ -187,17 +196,3 @@
         </div>
     </div></div>
 </div>
-
-<script>
-function toggleComputerFields(){
-    var tipo=document.getElementById('tipo').value;
-    var cf=document.getElementById('computerFields');
-    var isCPU=(tipo==='1');
-    cf.style.display=isCPU?'block':'none';
-    ['procesador','tarjeta_madre','ram'].forEach(function(id){
-        var el=document.getElementById(id);
-        if(el) el.required=isCPU;
-    });
-}
-toggleComputerFields();
-</script>

@@ -189,7 +189,33 @@ Copiar
                                         </div>
                                     </div>
                                 </div>
-
+<!-- En el formulario de firmas, agrega estos campos -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Primer Cuatrimestre</label>
+            <input type="text" name="primer_cuatrimestre" class="form-control" 
+                   value="<?php echo htmlspecialchars($firmas->primer_cuatrimestre ?? ''); ?>"
+                   placeholder="Nombre y firma...">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Segundo Cuatrimestre</label>
+            <input type="text" name="segundo_cuatrimestre" class="form-control" 
+                   value="<?php echo htmlspecialchars($firmas->segundo_cuatrimestre ?? ''); ?>"
+                   placeholder="Nombre y firma...">
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="form-group">
+            <label>Tercer Cuatrimestre</label>
+            <input type="text" name="tercer_cuatrimestre" class="form-control" 
+                   value="<?php echo htmlspecialchars($firmas->tercer_cuatrimestre ?? ''); ?>"
+                   placeholder="Nombre y firma...">
+        </div>
+    </div>
+</div>
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">

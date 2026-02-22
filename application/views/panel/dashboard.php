@@ -133,10 +133,7 @@
                 </div>
                 
                 <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
-    <a href="<?php echo base_url('orden-mantenimiento');?>" class="quick-link">
-        <i class="fas fa-tools"></i>  <!-- ESTE ES EL ICONO -->
-        <span>Órdenes de mantenimiento</span>
-    </a>
+    
 </div>
             </div>
             

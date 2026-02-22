@@ -4,200 +4,449 @@
 <meta charset="UTF-8">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: Arial, Helvetica, sans-serif; font-size: 6.5pt; color: #000; background: #fff; }
-@page { size: letter landscape; margin: 8mm 7mm 8mm 7mm; }
-.enc-wrap { width:100%; margin-bottom:3mm; }
-.enc-tabla { width:100%; border-collapse:collapse; }
-.enc-logo-izq, .enc-logo-der { width:42mm; padding:1mm 2mm; text-align:center; vertical-align:middle; }
-.enc-logo-izq img, .enc-logo-der img { max-width:38mm; max-height:18mm; display:block; margin:0 auto; }
-.enc-centro { text-align:center; vertical-align:middle; padding:1mm 4mm; }
-.enc-sin-logo { display:block; width:36mm; height:16mm; border:1px dashed #999; font-size:5pt; color:#999; text-align:center; line-height:16mm; margin:0 auto; }
-.enc-sub    { font-size:7.5pt; color:#222; margin-bottom:2mm; }
-.enc-titulo { font-size:10.5pt; font-weight:bold; color:#000; margin-bottom:2mm; }
-.enc-fecha  { font-size:7.5pt; color:#222; }
-.enc-anio   { text-align:center; font-size:12pt; font-weight:bold; margin:2.5mm 0; color:#000; }
-.t-info { width:100%; border-collapse:collapse; border:1px solid #000; margin-bottom:2mm; }
-.t-info td { padding:2mm 2.5mm; font-size:7.5pt; border:1px solid #000; }
-.t-info .lbl { font-weight:bold; background:#fff; white-space:nowrap; width:22mm; }
-.tp { width:100%; border-collapse:collapse; border:1px solid #000; margin-bottom:2mm; table-layout:fixed; }
-.c-num { width:5.5mm; } .c-lab { width:22mm; } .c-act { width:55mm; }
-.c-est { width:15mm; } .c-mes { width:8mm; } .c-obs { width:28mm; }
-.tp thead th {
-    background-color: #1F3864; color: #fff; font-weight:bold; font-size:6.5pt;
-    text-align:center; vertical-align:middle; padding:2mm 0.5mm;
-    border:1px solid #162b4b; word-wrap:break-word;
+body { 
+    font-family: 'Arial Narrow', Arial, sans-serif; 
+    color: #000; 
+    background: #fff; 
+    margin: 0px 40px 0px 90px;
+    padding: 0;
 }
-.tp tbody td {
-    border:1px solid #aaa; padding:1mm 0.8mm; text-align:center;
-    vertical-align:middle; font-size:6pt; word-wrap:break-word; background:#fff; color:#000;
+@page { 
+    size: letter landscape; 
+    margin: 10mm 12mm 10mm 12mm;
 }
-.td-izq { text-align:left; padding-left:1.5mm; }
-.td-est { font-size:6pt; font-style:italic; color:#000; background:#fff; text-align:left; padding-left:1.5mm; }
-.x-marca { font-weight:bold; font-size:8.5pt; color:#000; }
-.t-firmas { width:100%; border-collapse:collapse; border:1px solid #000; margin-bottom:2mm; }
-.t-firmas td { border:1px solid #aaa; padding:1.5mm 2mm; font-size:6.5pt; text-align:center; vertical-align:top; background:#fff; color:#000; }
-.tf-hdr { font-weight:normal; font-size:6.5pt; }
-.tf-espacio { height:13mm; vertical-align:bottom; padding-bottom:1.5mm; }
-.tf-lbl { font-size:5.8pt; color:#000; padding-top:1mm; }
-.pie { background-color:#8B1A10; color:#fff; text-align:center; padding:2mm 3mm; font-size:7pt; font-weight:bold; }
+
+/* ===== ENCABEZADO ===== */
+.enc-wrap { 
+    width:100%; 
+    margin-bottom:4mm; 
+}
+.enc-tabla { 
+    width:100%; 
+    border-collapse:collapse; 
+}
+.enc-logo-izq, .enc-logo-der { 
+    width:42mm; 
+    padding:1mm 2mm; 
+    text-align:center; 
+    vertical-align:middle; 
+}
+.enc-logo-izq img, .enc-logo-der img { 
+    max-width:50mm; 
+    max-height:28mm; 
+    display:block; 
+    margin:0 auto; 
+}
+.enc-centro { 
+    text-align:center; 
+    vertical-align:middle; 
+    padding:1mm 4mm; 
+}
+.enc-sin-logo { 
+    display:block; 
+    width:38mm; 
+    height:18mm; 
+    border:1px dashed #999; 
+    font-size:5pt; 
+    color:#999; 
+    text-align:center; 
+    line-height:18mm; 
+    margin:0 auto; 
+}
+.enc-sub { 
+    font-size:8pt; 
+    color:#000; 
+    margin-bottom:1.5mm; 
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+.enc-titulo { 
+    font-size:11pt; 
+    font-weight:bold; 
+    color:#000; 
+    margin-bottom:1.5mm; 
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+.enc-fecha { 
+    font-size:8pt; 
+    color:#000; 
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+.enc-anio { 
+    text-align:center; 
+    font-size:11pt; 
+    font-weight:bold; 
+    margin:3mm 0; 
+    color:#000; 
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+
+/* ===== TABLA DE INFORMACIÓN ===== */
+.t-info {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    margin-bottom: 3mm;
+    text-align: left;
+}
+.t-info td {
+    padding: 0;
+    font-size: 9pt;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    border: 1px solid #000;
+}
+.t-info .lbl {
+    font-weight: normal;
+    background-color: #f2f2f2;
+    white-space: nowrap;
+    padding-left: 3mm;
+}
+
+/* ===== TABLA PRINCIPAL ===== */
+.tp {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    margin-bottom: 3mm;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+
+/*
+   Columnas ajustadas para máximo parecido a la imagen:
+   - N°: muy pequeño
+   - Laboratorio: moderado
+   - Actividad a realizar: el más ancho
+   - Estatus: solo para "Planeado/Realizado"
+   - 12 meses: al mínimo posible
+   - Observaciones: amplio
+*/
+/* Distribución optimizada REAL */
+
+
+.tp td {
+    border: 1px solid #aaa;
+    padding: 0.8mm 1pt;
+    vertical-align: middle;
+    font-size: 6.5pt;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    word-wrap: break-word;
+}
+
+
+/* Borde exterior azul oscuro de toda la tabla */
+.tp {
+    width: 100%;
+    margin-bottom: 6mm;
+    border-top: 2px solid #333399;
+    border-bottom: 2px solid #333399;
+}
+
+/* Encabezados principales */
+.tp .enc-prin {
+    background-color: #e8e8e8;
+    font-weight: normal;
+    text-align: center;
+    font-size: 6.5pt;
+    padding: 1mm 1pt;
+    border: 1px solid #aaa;
+}
+
+/* Encabezado "Meses" agrupa los 12 */
+.tp .enc-meses {
+    background-color: #e8e8e8;
+    font-weight: normal;
+    text-align: center;
+    font-size: 6.5pt;
+    border: 1px solid #aaa;
+    padding: 1mm 0;
+}
+
+/* Subencabezados de cada mes */
+.tp .enc-mes {
+    background-color: #efefef;
+    text-align: center;
+    font-size: 5pt;
+    font-weight: normal;
+    padding: 0;
+    letter-spacing: -0.5pt;
+    border: 1px solid #aaa;
+}
+
+/* Etiquetas Planeado / Realizado */
+.tp .est-lbl {
+    font-size: 6pt;
+    text-align: center;
+    border: 1px solid #aaa;
+}
+
+/* Última fila: borde inferior azul */
+.tp tr:last-child td {
+    border-bottom: 1.5px;
+}
+
+/* Marca X */
+.x-marca { 
+    font-weight: bold; 
+    font-size: 7pt; 
+    display: block;
+    text-align: center;
+}
+
+/* ===== TABLA DE FIRMAS ===== */
+.t-firmas {
+    width: 100%;
+    margin-bottom: 6mm;
+    border-collapse: collapse;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+}
+.t-firmas td {
+    border: 1px solid #aaa;
+    padding: 0px;
+    font-size: 7pt;
+    text-align: center;
+    vertical-align: middle;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+
+}
+.tf-titulo {
+    font-weight: normal;
+    font-size: 7pt;
+    border-bottom: 1px solid #ffffff !important;
+}
+.tf-espacio { 
+    height: 12mm; 
+    vertical-align: bottom; 
+    padding-bottom: 1mm; 
+}
+.tf-lbl { 
+    font-size: 7pt; 
+    color: #000;
+}
+
+/* ===== PIE DE PÁGINA ===== */
+.pie {
+    background-color: #8B1A10;
+    color: #fff;
+    font-size: 7.5pt;
+    font-weight: bold;
+    font-family: 'Arial Narrow', Arial, sans-serif;
+    display: inline-block;
+    margin-top:0; 
+    margin-left: 6mm;
+    padding: 1px;
+}
+
+.text-left   { text-align: left; }
+.text-center { text-align: center; }
 </style>
 </head>
 <body>
 
-<!-- ENCABEZADO -->
-<div class="enc-wrap">
-<table class="enc-tabla"><tr>
-    <td class="enc-logo-izq">
-        <?php if (!empty($logo_uptlax_b64)): ?>
-            <img src="<?php echo $logo_uptlax_b64; ?>" alt="UPTLAX">
-        <?php else: ?>
-            <span class="enc-sin-logo">LOGO UPTLAX</span>
-        <?php endif; ?>
-    </td>
-    <td class="enc-centro">
-        <div class="enc-sub">Subproceso de Apoyo: <strong>Laboratorios</strong></div>
-        <div class="enc-titulo">Formato: Programa Anual de Mantenimiento a Laboratorios</div>
-        <div class="enc-fecha">Fecha de aprobación: <strong>octubre 2023</strong></div>
-    </td>
-    <td class="enc-logo-der">
-        <?php if (!empty($logo_sgc_b64)): ?>
-            <img src="<?php echo $logo_sgc_b64; ?>" alt="SGC UPTx">
-        <?php else: ?>
-            <span class="enc-sin-logo">SGC UPTx</span>
-        <?php endif; ?>
-    </td>
-</tr></table>
-</div>
+<div class="page-content">
 
-<div class="enc-anio">&lt;<?php echo htmlspecialchars($anio); ?>&gt;</div>
-
-<!-- LABORATORIO / EDIFICIO -->
-<table class="t-info"><tr>
-    <td class="lbl">Laboratorio:</td>
-    <td style="width:48%;"><?php echo htmlspecialchars($laboratorio); ?></td>
-    <td class="lbl" style="width:26mm;">Edificio / Campus:</td>
-    <td><?php echo htmlspecialchars($edificio); ?></td>
-</tr></table>
-
-<!-- TABLA PRINCIPAL -->
-<table class="tp">
-<colgroup>
-    <col class="c-num"><col class="c-lab"><col class="c-act"><col class="c-est">
-    <?php for($i=0;$i<12;$i++): ?><col class="c-mes"><?php endfor; ?>
-    <col class="c-obs">
-</colgroup>
-<thead>
-    <tr>
-        <th rowspan="2">N&deg;</th>
-        <th rowspan="2">Laboratorio</th>
-        <th rowspan="2">Actividad a realizar</th>
-        <th rowspan="2">Estatus</th>
-        <th colspan="12">Meses</th>
-        <th rowspan="2">Observaciones</th>
-    </tr>
-    <tr>
-        <?php foreach([1=>'Ene',2=>'Feb',3=>'Mar',4=>'Abr',5=>'May',6=>'Jun',
-                       7=>'Jul',8=>'Ago',9=>'Sep',10=>'Oct',11=>'Nov',12=>'Dic'] as $nom): ?>
-        <th><?php echo $nom; ?></th>
-        <?php endforeach; ?>
-    </tr>
-</thead>
-<tbody>
-<?php
-$max_filas = 9;
-$total_act = (!empty($actividades)) ? min(count($actividades), $max_filas) : 0;
-
-if ($total_act > 0):
-    $idx = 0;
-    foreach ($actividades as $act):
-        if ($idx >= $max_filas) break;
-        $idx++;
-        $pl = array_map('intval', (array)($act['meses_planeado']  ?? []));
-        $re = array_map('intval', (array)($act['meses_realizado'] ?? []));
-?>
-    <tr>
-        <td rowspan="2" style="font-weight:bold;font-size:6.5pt;"><?php echo (int)$act['numero']; ?></td>
-        <td rowspan="2" class="td-izq" style="font-size:6pt;"><?php echo htmlspecialchars($act['laboratorio']); ?></td>
-        <td rowspan="2" class="td-izq" style="font-size:6pt;"><?php echo htmlspecialchars($act['actividad']); ?></td>
-        <td class="td-est">Planeado</td>
-        <?php for($m=1;$m<=12;$m++): ?>
-        <td><?php if(in_array($m,$pl)): ?><span class="x-marca">X</span><?php endif; ?></td>
-        <?php endfor; ?>
-        <!-- Observaciones: columna presente pero vacía en PDF -->
-        <td rowspan="2"></td>
-    </tr>
-    <tr>
-        <td class="td-est">Realizado</td>
-        <?php for($m=1;$m<=12;$m++): ?>
-        <td><?php if(in_array($m,$re)): ?><span class="x-marca">X</span><?php endif; ?></td>
-        <?php endfor; ?>
-    </tr>
-<?php
-    endforeach;
-
-    // Filas vacías hasta completar 9 — SIN número de ID
-    for ($j = $total_act + 1; $j <= $max_filas; $j++):
-?>
-    <tr>
-        <td rowspan="2" style="border:1px solid #aaa;background:#fff;"></td>
-        <td rowspan="2" style="border:1px solid #aaa;background:#fff;"></td>
-        <td rowspan="2" style="border:1px solid #aaa;background:#fff;"></td>
-        <td class="td-est">Planeado</td>
-        <?php for($m=1;$m<=12;$m++): ?><td style="border:1px solid #aaa;background:#fff;"></td><?php endfor; ?>
-        <td rowspan="2" style="border:1px solid #aaa;background:#fff;"></td>
-    </tr>
-    <tr>
-        <td class="td-est">Realizado</td>
-        <?php for($m=1;$m<=12;$m++): ?><td style="border:1px solid #aaa;background:#fff;"></td><?php endfor; ?>
-    </tr>
-<?php
-    endfor;
-
-else:
-    // Sin actividades — sin filas, solo mensaje
-?>
-    <tr>
-        <td colspan="17" style="text-align:center;padding:5mm;color:#888;font-style:italic;font-size:7pt;">
-            No hay actividades registradas en este programa anual.
+    <!-- ENCABEZADO -->
+    <div class="enc-wrap">
+    <table class="enc-tabla"><tr>
+        <td class="enc-logo-izq">
+            <?php if (!empty($logo_uptlax_b64)): ?>
+                <img src="<?php echo $logo_uptlax_b64; ?>" alt="UPTLAX">
+            <?php else: ?>
+                <span class="enc-sin-logo">LOGO UPTLAX</span>
+            <?php endif; ?>
         </td>
+        <td class="enc-centro">
+            <div class="enc-sub">Subproceso de Apoyo: <strong>Laboratorios</strong></div>
+            <div class="enc-titulo">Formato: Programa Anual de Mantenimiento a Laboratorios</div>
+            <div class="enc-fecha">Fecha de aprobación: <strong>octubre 2023</strong></div>
+        </td>
+        <td class="enc-logo-der">
+            <?php if (!empty($logo_sgc_b64)): ?>
+                <img src="<?php echo $logo_sgc_b64; ?>" alt="SGC UPTx">
+            <?php else: ?>
+                <span class="enc-sin-logo">SGC UPTx</span>
+            <?php endif; ?>
+        </td>
+    </tr></table>
+    </div>
+
+    <!-- AÑO -->
+    <div class="enc-anio">&lt;<?php echo htmlspecialchars($anio); ?>&gt;</div>
+
+    <!-- TABLA DE INFORMACIÓN -->
+    <table class="t-info">
+    <tr>
+        <td class="lbl" style="width:17.5%;"><strong>Laboratorio:</strong></td>
+        <td style="width:37.5%; padding-left: 3mm;"><?php echo htmlspecialchars($laboratorio); ?></td>
+        <td class="lbl" style="width:15%;">Edificio / Campus:</td>
+        <td style="width:30%; padding-left: 3mm;"><?php echo htmlspecialchars($edificio); ?></td>
     </tr>
-<?php endif; ?>
-</tbody>
 </table>
 
-<!-- FIRMAS — todas en blanco para firmar a mano después de imprimir -->
+    <!-- TABLA PRINCIPAL -->
+    <table class="tp">
+    <colgroup>
+    <col style="width: 4%">
+    <col style="width:12%">
+    <col style="width:22%">  <!-- Actividad -->
+    <col style="width:6%">
+    <?php for($i=1;$i<=12;$i++): ?>
+        <col style="width:3%">
+    <?php endfor; ?>
+    <col style="width:20%">  <!-- Observaciones -->
+</colgroup>
+
+    <!-- Fila 1: encabezados -->
+    <tr>
+        <td rowspan="2" class="enc-prin">N°</td>
+        <td rowspan="2" class="enc-prin">Laboratorio</td>
+        <td rowspan="2" class="enc-prin">Actividad a realizar</td>
+        <td rowspan="2" class="enc-prin">Estatus</td>
+        <td colspan="12" class="enc-meses">M e s e s</td>
+        <td rowspan="2" class="enc-prin">Observaciones</td>
+    </tr>
+    <!-- Fila 2: nombres de meses -->
+    <tr>
+        <td class="enc-mes">Ene</td>
+        <td class="enc-mes">Feb</td>
+        <td class="enc-mes">Mar</td>
+        <td class="enc-mes">Abr</td>
+        <td class="enc-mes">May</td>
+        <td class="enc-mes">Jun</td>
+        <td class="enc-mes">Jul</td>
+        <td class="enc-mes">Ago</td>
+        <td class="enc-mes">Sep</td>
+        <td class="enc-mes">Oct</td>
+        <td class="enc-mes">Nov</td>
+        <td class="enc-mes">Dic</td>
+    </tr>
+
+    <tbody>
+    <?php
+    $max_filas = 9;
+    $total_act = (!empty($actividades)) ? min(count($actividades), $max_filas) : 0;
+
+    if (!function_exists('mes_marcado_pdf')):
+        function mes_marcado_pdf($mes, $marcados) {
+            return (is_array($marcados) && in_array($mes, $marcados))
+                ? '<span class="x-marca">X</span>' : '';
+        }
+    endif;
+
+    if ($total_act > 0):
+        $idx = 0;
+        foreach ($actividades as $act):
+            if ($idx >= $max_filas) break;
+            $idx++;
+            $pl = array_map('intval', (array)($act['meses_planeado']  ?? []));
+            $re = array_map('intval', (array)($act['meses_realizado'] ?? []));
+    ?>
+        <tr>
+            <td rowspan="2" class="text-center" style="font-weight:bold;"><?php echo (int)$act['numero']; ?></td>
+            <td rowspan="2" class="text-left"><?php echo htmlspecialchars($act['laboratorio']); ?></td>
+            <td rowspan="2" class="text-left"><?php echo htmlspecialchars($act['actividad']); ?></td>
+            <td class="est-lbl">Planeado</td>
+            <?php for($m=1;$m<=12;$m++): ?>
+            <td class="text-center"><?php echo mes_marcado_pdf($m, $pl); ?></td>
+            <?php endfor; ?>
+            <td rowspan="2" class="text-left"><?php echo htmlspecialchars($act['observaciones'] ?? ''); ?></td>
+        </tr>
+        <tr>
+            <td class="est-lbl">Realizado</td>
+            <?php for($m=1;$m<=12;$m++): ?>
+            <td class="text-center"><?php echo mes_marcado_pdf($m, $re); ?></td>
+            <?php endfor; ?>
+        </tr>
+    <?php
+        endforeach;
+        for ($j = $total_act + 1; $j <= $max_filas; $j++):
+    ?>
+        <tr>
+            <td rowspan="2" class="text-center"></td>
+            <td rowspan="2" class="text-left"></td>
+            <td rowspan="2" class="text-left"></td>
+            <td class="est-lbl">Planeado</td>
+            <?php for($m=1;$m<=12;$m++): ?><td></td><?php endfor; ?>
+            <td rowspan="2" class="text-left"></td>
+        </tr>
+        <tr>
+            <td class="est-lbl">Realizado</td>
+            <?php for($m=1;$m<=12;$m++): ?><td></td><?php endfor; ?>
+        </tr>
+    <?php
+        endfor;
+    else:
+        for ($j = 1; $j <= $max_filas; $j++):
+    ?>
+        <tr>
+            <td rowspan="2" class="text-center"></td>
+            <td rowspan="2" class="text-left"></td>
+            <td rowspan="2" class="text-left"></td>
+            <td class="est-lbl">Planeado</td>
+            <?php for($m=1;$m<=12;$m++): ?><td></td><?php endfor; ?>
+            <td rowspan="2" class="text-left"></td>
+        </tr>
+        <tr>
+            <td class="est-lbl">Realizado</td>
+            <?php for($m=1;$m<=12;$m++): ?><td></td><?php endfor; ?>
+        </tr>
+    <?php
+        endfor;
+    endif;
+    ?>
+    </tbody>
+    </table>
+
+  <!-- TABLA DE FIRMAS -->
 <table class="t-firmas">
     <tr>
-        <td class="tf-hdr" style="width:14%;">Responsable</td>
-        <td class="tf-hdr" style="width:14%;">Revis&oacute;</td>
-        <td class="tf-hdr" style="width:14%;">Autoriz&oacute;</td>
-        <td class="tf-hdr" style="width:19%;">Primer cuatrimestre</td>
-        <td class="tf-hdr" style="width:19%;">Segundo cuatrimestre</td>
-        <td class="tf-hdr" style="width:20%;">Tercer cuatrimestre</td>
+        <td class="tf-titulo" style="width:15%;">Responsable</td>
+        <td class="tf-titulo" style="width:15%;">Revisó</td>
+        <td class="tf-titulo" style="width:15%;">Autorizó</td>
+        <td class="tf-titulo" style="width:18.3%;">Primer cuatrimestre</td>
+        <td class="tf-titulo" style="width:18.3%;">Segundo cuatrimestre</td>
+        <td class="tf-titulo" style="width:18.3%;">Tercer cuatrimestre</td>
     </tr>
     <tr>
-        <td class="tf-espacio"></td>
-        <td class="tf-espacio"></td>
-        <td class="tf-espacio"></td>
-        <td class="tf-espacio"></td>
-        <td class="tf-espacio"></td>
-        <td class="tf-espacio"></td>
+        <!-- Responsable -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($responsable ?? 'Mtra. Eulalia Cortés F.'); ?>
+        </td>
+        <!-- Revisó -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($revisor ?? 'Director de Programa Educativo'); ?>
+        </td>
+        <!-- Autorizó -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($autorizo ?? 'Secretaría Académica'); ?>
+        </td>
+        <!-- Primer cuatrimestre -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($primer_cuatrimestre ?? ''); ?>
+        </td>
+        <!-- Segundo cuatrimestre -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($segundo_cuatrimestre ?? ''); ?>
+        </td>
+        <!-- Tercer cuatrimestre -->
+        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+            <?php echo htmlspecialchars($tercer_cuatrimestre ?? ''); ?>
+        </td>
     </tr>
     <tr>
-        <td class="tf-lbl">Nombre y firma del &Aacute;rea</td>
+        <td class="tf-lbl">Nombre y firma del Área</td>
         <td class="tf-lbl">Director de Programa Educativo</td>
-        <td class="tf-lbl">Secretar&iacute;a Acad&eacute;mica</td>
+        <td class="tf-lbl">Secretaría Académica</td>
         <td colspan="3" class="tf-lbl">
-            Nombre, firma y sello de la Direcci&oacute;n de Programa Educativo
-            de revisar cuatrimestralmente el estado program&aacute;tico
+            Nombre, firma y sello de la Dirección de Programa Educativo
+            de revisar cuatrimestralmente el estado programático
         </td>
     </tr>
 </table>
 
-<!-- PIE -->
-<div class="pie">
-    Para uso de la Universidad Polit&eacute;cnica de Tlaxcala mediante su Sistema de Gesti&oacute;n de la Calidad
-</div>
+    <!-- PIE DE PÁGINA -->
+    <div class="pie">
+        Para uso de la Universidad Politécnica de Tlaxcala mediante su Sistema de Gestión de la Calidad
+    </div>
 
+</div>
 </body>
 </html>
