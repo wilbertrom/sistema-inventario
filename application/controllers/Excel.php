@@ -10,14 +10,12 @@ require_once APPPATH.'libraries/phpspreadsheet/vendor/autoload.php';
 
 class Excel extends CI_Controller
 {
-    
     public function __construct()
     {
         parent::__construct();
         $this->load->model('Inventario_model');
         $this->load->library('session');
         
-        // Verificar sesión
         if (!$this->session->userdata('logged_in')) {
             redirect('login');
         }
@@ -26,8 +24,9 @@ class Excel extends CI_Controller
     public function index()
     {
         $laboratorio_id = $this->session->userdata('laboratorio_id');
+        $laboratorio_nombre = $this->session->userdata('laboratorio_nombre') ?: 
+                             ($laboratorio_id == 1 ? 'Open Source' : 'Mac');
         
-        // Obtener equipos filtrados por laboratorio
         $equipos = $this->Inventario_model->obtener_equipos_por_laboratorio($laboratorio_id);
 
         if (empty($equipos)) {
@@ -41,43 +40,106 @@ class Excel extends CI_Controller
         $spreadsheet->setActiveSheetIndex(0);
         $hojaActiva = $spreadsheet->getActiveSheet();
         
-        $hojaActiva->getStyle('A1')->getFont()->setName('Arial')->setSize(8);
-    
-        $fila = 10;
+        // ===== ACTUALIZAR FECHA DE APROBACIÓN (E1:J4) =====
+        $hojaActiva->mergeCells('E1:J4');
+        $hojaActiva->setCellValue('E1', 'Fecha de aprobación: 06 de enero de 2022');
+        $hojaActiva->getStyle('E1:J4')->getFont()->setName('Arial')->setSize(10);
+        $hojaActiva->getStyle('E1:J4')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $hojaActiva->getStyle('E1:J4')->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        
+        // ===== AGREGAR LABORATORIO EN I6 =====
+        $hojaActiva->setCellValue('I6', $laboratorio_nombre);
+        $hojaActiva->getStyle('I6')->getFont()->setName('Arial')->setSize(10)->setBold(true);
+        
+        // ===== ENCABEZADOS DE TABLA =====
+        // No. en B8
+        $hojaActiva->setCellValue('B8', 'No.');
+        $hojaActiva->getStyle('B8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('B8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Descripción del producto en C8:E8 (combinadas)
+        $hojaActiva->mergeCells('C8:E8');
+        $hojaActiva->setCellValue('C8', 'Descripción del producto');
+        $hojaActiva->getStyle('C8:E8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('C8:E8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Unidad en F8
+        $hojaActiva->setCellValue('F8', 'Unidad');
+        $hojaActiva->getStyle('F8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('F8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Código interno en G8
+        $hojaActiva->setCellValue('G8', 'Código interno');
+        $hojaActiva->getStyle('G8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('G8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Marca en H8
+        $hojaActiva->setCellValue('H8', 'Marca');
+        $hojaActiva->getStyle('H8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('H8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Proveedor en I8
+        $hojaActiva->setCellValue('I8', 'Proveedor');
+        $hojaActiva->getStyle('I8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('I8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Estado del equipo en J8
+        $hojaActiva->setCellValue('J8', 'Estado del equipo');
+        $hojaActiva->getStyle('J8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('J8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Observaciones en K8:L8 (combinadas)
+        $hojaActiva->mergeCells('K8:L8');
+        $hojaActiva->setCellValue('K8', 'Observaciones');
+        $hojaActiva->getStyle('K8:L8')->getFont()->setName('Arial')->setSize(8)->setBold(true);
+        $hojaActiva->getStyle('K8:L8')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // ===== DATOS (empiezan en fila 9) =====
+        $fila = 9;
         foreach ($equipos as $index => $equipo) {
-            $estado = $equipo->estado;
-
+            // No.
             $hojaActiva->setCellValue('B' . $fila, $index + 1);
-            $hojaActiva->mergeCells('C'.($fila).':E'.($fila));
-            $hojaActiva->setCellValue('C' . $fila, $equipo->tipo);
-            $hojaActiva->setCellValue('F' . $fila, "1");
-            $hojaActiva->setCellValue('G' . $fila, "Pieza");
-            $hojaActiva->setCellValue('H' . $fila, $equipo->cod_interno);
-            $hojaActiva->setCellValue('I' . $fila, $equipo->marca);
+            $hojaActiva->getStyle('B' . $fila)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             
-            if($estado == "En servicio"){
-                $hojaActiva->setCellValue('J' . $fila, $estado);
-            } else {
-                $hojaActiva->setCellValue('K' . $fila, $estado);
-            }
+            // Descripción del producto (C:E combinadas)
+            $hojaActiva->mergeCells('C' . $fila . ':E' . $fila);
+            $hojaActiva->setCellValue('C' . $fila, $equipo->descripcion_producto ?? $equipo->tipo ?? '');
             
-            $hojaActiva->mergeCells('L'.($fila).':M'.($fila));
-            $hojaActiva->setCellValue('L' . $fila, $equipo->descripcion);
+            // Unidad
+            $hojaActiva->setCellValue('F' . $fila, 'Pieza');
+            $hojaActiva->getStyle('F' . $fila)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            
+            // Código interno
+            $hojaActiva->setCellValue('G' . $fila, $equipo->codigo_interno ?? '');
+            $hojaActiva->getStyle('G' . $fila)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            
+            // Marca
+            $hojaActiva->setCellValue('H' . $fila, $equipo->marca ?? '');
+            
+            // Proveedor
+            $hojaActiva->setCellValue('I' . $fila, $equipo->proveedor ?? '');
+            
+            // Estado
+            $hojaActiva->setCellValue('J' . $fila, $equipo->estado ?? '');
+            $hojaActiva->getStyle('J' . $fila)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            
+            // Observaciones (K:L combinadas)
+            $hojaActiva->mergeCells('K' . $fila . ':L' . $fila);
+            $hojaActiva->setCellValue('K' . $fila, $equipo->descripcion_producto ?? '');
+            
             $fila++;
         }
 
-        $rangoDatos = 'B10:M' . ($fila - 1);
-
+        // Aplicar bordes a toda la tabla
+        $rangoDatos = 'B8:L' . ($fila - 1);
         $hojaActiva->getStyle($rangoDatos)->applyFromArray([
-            'font' => ['size' => 8],
+            'font' => ['name' => 'Arial', 'size' => 8],
             'borders' => [
                 'allBorders' => ['borderStyle' => Border::BORDER_THIN],
             ],
         ]);
 
-        $hojaActiva->getStyle('A1')->getFont()->setName('Arial');
-        
-        // Footer
+        // Footer (se mantiene igual)
         $hojaActiva->mergeCells('C'. ($fila+5).':G'.($fila+5));
         $hojaActiva->setCellValue('C'.($fila+5), "Mtra.  Eulalia Cortés F.");
 
@@ -103,7 +165,6 @@ class Excel extends CI_Controller
         
         $file_name = 'reporte_equipos_' . date('Y-m-d_H-i-s') . '.xlsx';
 
-        // Limpiar buffer
         if (ob_get_level()) {
             ob_end_clean();
         }

@@ -46,7 +46,7 @@ body {
     display:block; 
     width:38mm; 
     height:18mm; 
-    border:1px dashed #999; 
+    border: 0.2px dashed #000; 
     font-size:5pt; 
     color:#999; 
     text-align:center; 
@@ -92,7 +92,7 @@ body {
     padding: 0;
     font-size: 9pt;
     font-family: 'Arial Narrow', Arial, sans-serif;
-    border: 1px solid #000;
+    border: 0.2px dashed #000;
 }
 .t-info .lbl {
     font-weight: normal;
@@ -123,7 +123,7 @@ body {
 
 
 .tp td {
-    border: 1px solid #aaa;
+    border: 0.2px dashed #000;
     padding: 0.8mm 1pt;
     vertical-align: middle;
     font-size: 6.5pt;
@@ -147,7 +147,7 @@ body {
     text-align: center;
     font-size: 6.5pt;
     padding: 1mm 1pt;
-    border: 1px solid #aaa;
+    border: 0.2px dashed #000;
 }
 
 /* Encabezado "Meses" agrupa los 12 */
@@ -156,7 +156,7 @@ body {
     font-weight: normal;
     text-align: center;
     font-size: 6.5pt;
-    border: 1px solid #aaa;
+    border: 0.2px dashed #000;
     padding: 1mm 0;
 }
 
@@ -168,15 +168,13 @@ body {
     font-weight: normal;
     padding: 0;
     letter-spacing: -0.5pt;
-    border: 1px solid #aaa;
-}
+border: 0.2px dashed #000;}
 
 /* Etiquetas Planeado / Realizado */
 .tp .est-lbl {
     font-size: 6pt;
     text-align: center;
-    border: 1px solid #aaa;
-}
+border: 0.2px dashed #000;}
 
 /* Última fila: borde inferior azul */
 .tp tr:last-child td {
@@ -194,12 +192,13 @@ body {
 /* ===== TABLA DE FIRMAS ===== */
 .t-firmas {
     width: 100%;
+    text-align: center; 
     margin-bottom: 6mm;
     border-collapse: collapse;
     font-family: 'Arial Narrow', Arial, sans-serif;
 }
 .t-firmas td {
-    border: 1px solid #aaa;
+border: 0.2px dashed #000;    text-align: center; 
     padding: 0px;
     font-size: 7pt;
     text-align: center;
@@ -213,7 +212,7 @@ body {
     border-bottom: 1px solid #ffffff !important;
 }
 .tf-espacio { 
-    height: 12mm; 
+    height: 12mm;
     vertical-align: bottom; 
     padding-bottom: 1mm; 
 }
@@ -395,7 +394,7 @@ body {
     </tbody>
     </table>
 
-  <!-- TABLA DE FIRMAS -->
+ <!-- TABLA DE FIRMAS -->
 <table class="t-firmas">
     <tr>
         <td class="tf-titulo" style="width:15%;">Responsable</td>
@@ -407,27 +406,27 @@ body {
     </tr>
     <tr>
         <!-- Responsable -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 1mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($responsable ?? 'Mtra. Eulalia Cortés F.'); ?>
         </td>
         <!-- Revisó -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 1mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($revisor ?? 'Director de Programa Educativo'); ?>
         </td>
         <!-- Autorizó -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($autorizo ?? 'Secretaría Académica'); ?>
         </td>
         <!-- Primer cuatrimestre -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($primer_cuatrimestre ?? ''); ?>
         </td>
         <!-- Segundo cuatrimestre -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($segundo_cuatrimestre ?? ''); ?>
         </td>
         <!-- Tercer cuatrimestre -->
-        <td class="tf-espacio" style="text-align: left; padding-left: 2mm; vertical-align: bottom;">
+        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
             <?php echo htmlspecialchars($tercer_cuatrimestre ?? ''); ?>
         </td>
     </tr>

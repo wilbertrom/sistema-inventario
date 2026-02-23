@@ -55,31 +55,46 @@ class Pdf extends CI_Controller
 
         $pdf->Ln();
         $pdf->Ln();
-        $pdf->SetFont('Arial', 'B', 10);
+        
+        // ===== ENCABEZADOS CON RELLENO GRIS CLARO =====
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->SetFillColor(240, 240, 240); // Gris claro para los encabezados
+        
+        // ORDEN CORRECTO: No., Descripción del producto, Unidad, Código interno, Marca, Proveedor, Estado del equipo, Observaciones
+        $pdf->Cell(10, 6, 'No.', 1, 0, 'C', 1);
+        $pdf->Cell(45, 6, utf8_decode('Descripción del producto'), 1, 0, 'C', 1);
+        $pdf->Cell(15, 6, 'Unidad', 1, 0, 'C', 1);
+        $pdf->Cell(35, 6, utf8_decode('Código interno'), 1, 0, 'C', 1);
+        $pdf->Cell(20, 6, 'Marca', 1, 0, 'C', 1);
+        $pdf->Cell(30, 6, 'Proveedor', 1, 0, 'C', 1);
+        $pdf->Cell(28, 6, utf8_decode('Estado del equipo'), 1, 0, 'C', 1);
+        $pdf->Cell(55, 6, utf8_decode('Observaciones'), 1, 1, 'C', 1);
 
-        $pdf->Cell(10, 6, 'No.', 1);
-        $pdf->Cell(35, 6, 'Nombre', 1);
-        $pdf->Cell(20, 6, 'Cantidad', 1);
-        $pdf->Cell(15, 6, 'Unidad', 1);
-        $pdf->Cell(70, 6, 'Codigo Interno', 1);
-        $pdf->Cell(35, 6, 'Marca', 1);
-        $pdf->Cell(35, 6, 'Estado', 1);
-        $pdf->Cell(55, 6, 'Observaciones', 1);
-
-        $pdf->Ln();
-        $pdf->SetFont('Arial', '', 10);
+        $pdf->Ln(2); // Pequeño espacio después de los encabezados
+        
+        // ===== DATOS DE LOS EQUIPOS =====
+        $pdf->SetFont('Arial', '', 8);
         $numero = 1;
         
         foreach ($equipos as $row) {
-            $pdf->Cell(10, 6, $numero, 1);
-            $pdf->Cell(35, 6, utf8_decode($row->tipo ?? ''), 1);
-            $pdf->Cell(20, 6, '1', 1);
-            $pdf->Cell(15, 6, 'Pieza', 1);
-            $pdf->Cell(70, 6, $row->cod_interno ?? '', 1);
-            $pdf->Cell(35, 6, utf8_decode($row->marca ?? ''), 1);
-            $pdf->Cell(35, 6, utf8_decode($row->estado ?? ''), 1);
-            $pdf->Cell(55, 6, utf8_decode($row->descripcion ?? ''), 1);
-            $pdf->Ln();
+            $pdf->Cell(10, 6, $numero, 1, 0, 'C');
+            $pdf->Cell(45, 6, utf8_decode($row->descripcion ?? $row->tipo ?? ''), 1);
+            $pdf->Cell(15, 6, 'Pieza', 1, 0, 'C');
+            
+            // Código interno con fuente más pequeña si es muy largo
+            $codigo = $row->codigo_interno ?? '';
+            if (strlen($codigo) > 12) {
+                $pdf->SetFont('Arial', '', 6); // Fuente más pequeña
+                $pdf->Cell(35, 6, $codigo, 1, 0, 'C');
+                $pdf->SetFont('Arial', '', 8); // Restaurar fuente
+            } else {
+                $pdf->Cell(35, 6, $codigo, 1, 0, 'C');
+            }
+            
+            $pdf->Cell(20, 6, utf8_decode($row->marca ?? ''), 1);
+            $pdf->Cell(30, 6, utf8_decode($row->proveedor ?? ''), 1);
+            $pdf->Cell(28, 6, utf8_decode($row->estado ?? ''), 1, 0, 'C');
+            $pdf->Cell(55, 6, utf8_decode($row->descripcion ?? ''), 1, 1);
             $numero++;
         }
 

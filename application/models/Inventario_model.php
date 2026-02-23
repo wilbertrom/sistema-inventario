@@ -390,16 +390,16 @@ public function obtener_equipos_por_laboratorio($laboratorio_id)
         return array();
     }
     
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+     $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.proveedor');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
     $this->db->join('estados', 'equipos.id_estados = estados.id_estados', 'left');
     $this->db->where('equipos.laboratorio_id', $laboratorio_id);
-    $this->db->order_by('equipos.id_equipos', 'DESC');
     
     $query = $this->db->get();
     return $query->result();
+    
 }
 
 /**

@@ -1,4 +1,3 @@
-
 <style>
 :root{--rojo:#a52119;--rojo-mid:#c0392b;--rojo-light:#fdf1f0;--gris-bg:#f5f6f8;--gris-borde:#e2e8f0;--texto-dark:#1e293b;--texto-mid:#475569;--sombra-sm:0 2px 8px rgba(0,0,0,0.06);--radio:14px;--radio-sm:8px;}
 .main-content{background:var(--gris-bg);min-height:calc(100vh - 81px);}
@@ -20,7 +19,7 @@
 .btn-outline{background:white;color:var(--texto-mid);border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:9px 15px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;text-decoration:none;}
 .btn-outline:hover{background:#f1f5f9;color:var(--texto-dark);text-decoration:none;}
 table.inv-t{width:100%;border-collapse:collapse;}
-table.inv-t thead th{background:#1e293b;color:white;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:13px 16px;border:none;}
+table.inv-t thead th{background:#1e293b;color:white;font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;padding:13px 16px;border:none;white-space:nowrap;}
 table.inv-t thead th:first-child{border-radius:0;}
 table.inv-t tbody tr{border-bottom:1px solid var(--gris-borde);transition:background .15s;}
 table.inv-t tbody tr:hover{background:#fafbfc;}
@@ -95,24 +94,28 @@ table.inv-t td{padding:12px 16px;font-size:13.5px;color:var(--texto-mid);vertica
         <table class="inv-t">
             <thead>
                 <tr>
+                    <th>No.</th>
+                    <th>Descripción del producto</th>
+                    <th>Unidad</th>
+                    <th>Código interno</th>
                     <th>Marca</th>
-                    <th>Código Interno</th>
-                    <th>Tipo</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
+                    <th>Proveedor</th>
+                    <th>Estado del equipo</th>
+                    <th>Observaciones</th>
                     <th style="text-align:center;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
             <?php if(isset($equipos) && !empty($equipos)): ?>
+            <?php $contador = 1; ?>
             <?php foreach($equipos as $equipo): ?>
             <tr>
-                <td class="td-main"><?php echo $equipo->marca; ?></td>
+                <td class="td-main text-center"><?php echo $contador++; ?></td>
+                <td><?php echo $equipo->descripcion ?? $equipo->tipo ?? ''; ?></td>
+                <td class="text-center">Pieza</td>
                 <td><?php echo $equipo->cod_interno; ?></td>
-                <td><?php echo $equipo->tipo; ?></td>
-                <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                    <?php echo $equipo->descripcion; ?>
-                </td>
+                <td><?php echo $equipo->marca; ?></td>
+                <td><?php echo $equipo->proveedor ?? ''; ?></td>
                 <td>
                     <?php
                     $e = $equipo->estado;
@@ -120,6 +123,9 @@ table.inv-t td{padding:12px 16px;font-size:13.5px;color:var(--texto-mid);vertica
                     elseif($e == 'Fuera de servicio') echo '<span class="badge-e be-red">'.$e.'</span>';
                     else echo '<span class="badge-e be-yellow">'.$e.'</span>';
                     ?>
+                </td>
+                <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    <?php echo $equipo->descripcion ?? ''; ?>
                 </td>
                 <td style="text-align:center;white-space:nowrap;">
                     <a href="<?php echo base_url('panel/detalles/'.$equipo->id_equipos); ?>"
@@ -129,13 +135,12 @@ table.inv-t td{padding:12px 16px;font-size:13.5px;color:var(--texto-mid);vertica
                     <a href="<?php echo base_url('inventario/eliminar/'.$equipo->id_equipos); ?>"
                        class="ac-btn ab-del" title="Eliminar"
                        onclick="return confirm('¿Eliminar este equipo?')"><i class="zmdi zmdi-delete"></i></a>
-                    
                 </td>
             </tr>
             <?php endforeach; ?>
             <?php else: ?>
             <tr>
-                <td colspan="6">
+                <td colspan="9">
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
                         No hay equipos registrados
