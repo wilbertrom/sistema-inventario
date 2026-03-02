@@ -15,24 +15,19 @@ class Inventario extends MY_Controller
     public function registrar()
     {
         $this->form_validation->set_rules('marca',       'Marca',          'required');
-        $this->form_validation->set_rules('cod_interno', 'Código Interno', 'required|trim');
+        $this->form_validation->set_rules('codigo_interno', 'Código Interno', 'required|trim');
         $this->form_validation->set_rules('tipo',        'Tipo',           'required');
         $this->form_validation->set_rules('estado',      'Estado',         'required');
 
         if ($this->form_validation->run() == FALSE) {
-            // Redirigir de vuelta a Panel::registrar para que cargue
-            // los datos (marcas, tipos, estados) correctamente
             redirect('panel/registrar');
             return;
         }
 
-        // Panel::view() encripta los id_tipos antes de pasarlos a la vista,
-        // así que los values de tipo llegan encriptados — desencriptar
         $marca_id  = (int) $this->input->post('marca');
         $tipo_id   = (int) $this->idencrypt->decrypt($this->input->post('tipo'));
         $estado_id = (int) $this->input->post('estado');
 
-        // Validación: IDs deben ser > 0
         if ($marca_id <= 0 || $tipo_id <= 0 || $estado_id <= 0) {
             $this->session->set_flashdata('error', 'Selecciona una marca, tipo y estado válidos.');
             redirect('panel/registrar');
@@ -40,28 +35,16 @@ class Inventario extends MY_Controller
         }
 
         $data_equipo = array(
-            'id_marcas'      => $marca_id,
-            'cod_interno'    => $this->input->post('cod_interno'),
-            'id_tipos'       => $tipo_id,
-            'descripcion'    => $this->input->post('descripcion'),
-            'id_estados'     => $estado_id,
-            'laboratorio_id' => $this->session->userdata('laboratorio_id'),
-            'modelo'         => $this->input->post('modelo') ?: null,
+            'id_marcas'           => $marca_id,
+            'codigo_interno' => $this->input->post('codigo_interno'),
+            'id_tipos'            => $tipo_id,
+            'descripcion_producto'=> $this->input->post('descripcion') ?: null,
+            'id_estados'          => $estado_id,
+            'laboratorio_id'      => $this->session->userdata('laboratorio_id'),
+            'modelo'              => $this->input->post('modelo') ?: null,
+            'proveedor'           => $this->input->post('proveedor') ?: null,
+            'unidad'              => $this->input->post('unidad') ?: null,
         );
-
-        // Si es CPU (tipo_id == 1), guardar especificaciones
-        if ($tipo_id == 1) {
-            $data_ccompu = array(
-                'procesador' => $this->input->post('procesador'),
-                'tarjeta'    => $this->input->post('tarjeta_madre'),
-                'ram'        => $this->input->post('ram'),
-                'disco'      => $this->input->post('disco'),
-            );
-            $id_ccompu = $this->Inventario_model->registrar_ccompu($data_ccompu);
-            if ($id_ccompu) {
-                $data_equipo['id_ccompus'] = $id_ccompu;
-            }
-        }
 
         $id_equipo = $this->Inventario_model->registrar_inventario($data_equipo);
 
@@ -91,29 +74,36 @@ class Inventario extends MY_Controller
     public function editar()
     {
         $this->form_validation->set_rules('marca',       'Marca',          'required');
-        $this->form_validation->set_rules('cod_interno', 'Código Interno', 'required');
+        $this->form_validation->set_rules('codigo_interno', 'Código Interno', 'required');
         $this->form_validation->set_rules('tipo',        'Tipo',           'required');
         $this->form_validation->set_rules('estado',      'Estado',         'required');
 
+        $id_enc_fv = $this->input->post('id_equipos');
         if ($this->form_validation->run() == FALSE) {
-            // id_equipos viene encriptado desde Panel::editar — pasarlo de vuelta
-            $id_enc = $this->input->post('id_equipos');
-            redirect('panel/editar/' . $id_enc);
+            redirect(!empty($id_enc_fv) ? 'panel/editar/' . $id_enc_fv : 'panel/ver_inventario');
             return;
         }
 
         $id_equipo  = $this->idencrypt->decrypt($this->input->post('id_equipos'));
         $id_ccompus = $this->input->post('id_ccompus');
 
+        // Si el decrypt falla o devuelve vacío, no podemos continuar
+        if (empty($id_equipo) || !is_numeric($id_equipo)) {
+            $this->session->set_flashdata('error', 'Error: ID de equipo inválido.');
+            redirect('panel/ver_inventario');
+            return;
+        }
+
         $data_equipo_up = array(
-            'id_marcas'   => (int) $this->input->post('marca'),
-            'cod_interno' => $this->input->post('cod_interno'),
-            'id_tipos'    => (int) $this->input->post('tipo'),
-            'descripcion' => $this->input->post('descripcion'),
-            'id_estados'  => (int) $this->input->post('estado'),
+            'id_marcas'           => (int) $this->input->post('marca'),
+            'codigo_interno' => $this->input->post('codigo_interno'),
+            'id_tipos'            => (int) $this->input->post('tipo'),
+            'descripcion_producto'=> $this->input->post('descripcion') ?: null,
+            'id_estados'          => (int) $this->input->post('estado'),
+            'proveedor'           => $this->input->post('proveedor') ?: null,
+            'unidad'              => $this->input->post('unidad') ?: null,
         );
 
-        // Si es CPU y tiene ccompu asociado
         if ((int) $this->input->post('tipo') == 1 && !empty($id_ccompus)) {
             $data_ccompu_up = array(
                 'procesador' => $this->input->post('procesador'),
@@ -123,6 +113,7 @@ class Inventario extends MY_Controller
             $this->Inventario_model->actualizar_ccompu($data_ccompu_up, $id_ccompus);
         }
 
+        $id_enc = $this->input->post('id_equipos'); // guardar antes del update
         if ($this->Inventario_model->actualizar_inventario($data_equipo_up, $id_equipo)) {
             if (!empty($_FILES['imagen']['name'])) {
                 $dir = './recursos-panel/images/equipos/';
@@ -147,7 +138,7 @@ class Inventario extends MY_Controller
             redirect('panel/ver_inventario');
         } else {
             $this->session->set_flashdata('error', 'Error al actualizar el equipo.');
-            redirect('panel/editar/' . $this->input->post('id_equipos'));
+            redirect(!empty($id_enc) ? 'panel/editar/' . $id_enc : 'panel/ver_inventario');
         }
     }
 
@@ -181,41 +172,65 @@ class Inventario extends MY_Controller
         redirect('panel/ver_inventario');
     }
 
+    // ── NUEVA MARCA (solo para el laboratorio del usuario) ────
     public function nuevaMarca()
     {
         $this->form_validation->set_rules('marca', 'Marca', 'required');
-        $id_equipo = $this->input->post('id_equipos');
+        $id_equipo = trim($this->input->post('id_equipos'));
+        $origen    = (!empty($id_equipo)) ? 'panel/editar/' . $id_equipo : 'panel/registrar';
 
         if ($this->form_validation->run() == FALSE) {
-            redirect('panel/registrar');
+            redirect($origen);
             return;
         }
 
-        $data = array('nombre' => $this->input->post('marca'));
+        $data = array('nombre' => strtoupper(trim($this->input->post('marca'))));
         if ($this->Inventario_model->registrar_marca($data)) {
-            redirect(!empty($id_equipo) ? 'panel/editar/' . $id_equipo : 'panel/registrar');
+            $this->session->set_flashdata('success', 'Marca agregada correctamente.');
         } else {
             $this->session->set_flashdata('error', 'Error al agregar la marca.');
-            redirect('panel/registrar');
         }
+        redirect($origen);
+    }
+
+    // ── NUEVO ESTADO (solo para el laboratorio del usuario) ───
+    public function nuevoEstado()
+    {
+        $this->form_validation->set_rules('estado_nuevo', 'Estado', 'required');
+        $id_equipo = trim($this->input->post('id_equipos'));
+        $origen    = (!empty($id_equipo)) ? 'panel/editar/' . $id_equipo : 'panel/registrar';
+
+        if ($this->form_validation->run() == FALSE) {
+            redirect($origen);
+            return;
+        }
+
+        $data = array('nombre' => ucfirst(trim($this->input->post('estado_nuevo'))));
+        if ($this->Inventario_model->registrar_estado($data)) {
+            $this->session->set_flashdata('success', 'Estado agregado correctamente.');
+        } else {
+            $this->session->set_flashdata('error', 'Error al agregar el estado.');
+        }
+        redirect($origen);
     }
 
     public function nuevoTipo()
     {
         $this->form_validation->set_rules('tipo', 'Tipo', 'required');
-        $id_equipo = $this->input->post('id_equipos');
+        $id_equipo = trim($this->input->post('id_equipos'));
+        $origen    = (!empty($id_equipo)) ? 'panel/editar/' . $id_equipo : 'panel/registrar';
 
         if ($this->form_validation->run() == FALSE) {
-            redirect('panel/registrar');
+            redirect($origen);
             return;
         }
 
-        $data = array('nombre' => $this->input->post('tipo'));
+        $data = array('nombre' => strtoupper(trim($this->input->post('tipo'))));
         if ($this->Inventario_model->registrar_tipo($data)) {
-            redirect(!empty($id_equipo) ? 'panel/editar/' . $id_equipo : 'panel/registrar');
+            $this->session->set_flashdata('success', 'Tipo agregado correctamente.');
         } else {
             $this->session->set_flashdata('error', 'Error al agregar el tipo.');
-            redirect('panel/registrar');
         }
+        redirect($origen);
     }
 }

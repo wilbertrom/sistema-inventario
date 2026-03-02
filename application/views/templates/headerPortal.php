@@ -19,7 +19,7 @@
     <nav class="navbar navbar-expand-lg pl-3 pl-sm-0" id="navbar">
     <div class="container">
       <div class="navbar-brand-wrapper d-flex w-100">
-        <img src="<?php echo base_url('recursos-portal/')?>images/icon/UPTx_Logo.png" alt="" style="width: 179px;">
+        <img src="<?php echo base_url('assets/')?>img/logos/logo_uptlax.png" alt="Logo UPTlax" style="width: 220px; height: auto; transition: transform 0.3s ease;" class="logo-principal">
         <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="mdi mdi-menu navbar-toggler-icon"></span>
         </button> 
@@ -28,7 +28,7 @@
         <ul class="navbar-nav align-items-lg-center align-items-start ml-auto">
           <li class="d-flex align-items-center justify-content-between pl-4 pl-lg-0">
             <div class="navbar-collapse-logo">
-              <img src="<?php echo base_url('recursos/')?>images/icon/UPTx_Logo.png" alt=""  alt="">
+              <img src="<?php echo base_url('assets/')?>img/logos/logo_uptlax.png" alt=""  alt="">
             </div>
             <button class="navbar-toggler close-button" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
               <span class="mdi mdi-close navbar-toggler-icon pl-5"></span>

@@ -9,24 +9,23 @@ class User_model extends CI_Model {
     }
 
     public function login($username, $password)
-{
-    if (empty($username) || empty($password)) {
+    {
+        if (empty($username) || empty($password)) {
+            return false;
+        }
+        
+        $username = $this->db->escape_str($username);
+        
+        $this->db->where('username', $username);
+        $this->db->where("password = SHA2('".$password."', 0)");
+        $query = $this->db->get('users');
+        
+        if ($query->num_rows() == 1) {
+            return $query->row_array();
+        }
+        
         return false;
     }
-    
-    $username = $this->db->escape_str($username);
-    
-    $this->db->where('username', $username);
-    $this->db->where("password = SHA2('".$password."', 0)");
-    $query = $this->db->get('users');
-    
-    if ($query->num_rows() == 1) {
-        $user = $query->row_array();
-        return $user; // Esto YA debe incluir laboratorio_id
-    }
-    
-    return false;
-}
     
     public function verificar_acceso_laboratorio($user_id, $laboratorio_id)
     {
@@ -43,6 +42,25 @@ class User_model extends CI_Model {
         }
         
         return $query->num_rows() > 0;
+    }
+    
+    /**
+     * Obtener usuario por ID
+     */
+    public function get_user_by_id($id)
+    {
+        if (empty($id)) {
+            return null;
+        }
+        
+        $this->db->where('id', $id);
+        $query = $this->db->get('users');
+        
+        if ($query === false || $query->num_rows() == 0) {
+            return null;
+        }
+        
+        return $query->row();
     }
     
     public function get_user_by_username($username)

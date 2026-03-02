@@ -168,13 +168,15 @@ body {
     font-weight: normal;
     padding: 0;
     letter-spacing: -0.5pt;
-border: 0.2px dashed #000;}
+border: 0.2px dashed #000;
+}
 
 /* Etiquetas Planeado / Realizado */
 .tp .est-lbl {
     font-size: 6pt;
     text-align: center;
-border: 0.2px dashed #000;}
+border: 0.2px dashed #000;
+}
 
 /* Última fila: borde inferior azul */
 .tp tr:last-child td {
@@ -198,7 +200,8 @@ border: 0.2px dashed #000;}
     font-family: 'Arial Narrow', Arial, sans-serif;
 }
 .t-firmas td {
-border: 0.2px dashed #000;    text-align: center; 
+border: 0.2px dashed #000;
+    text-align: center; 
     padding: 0px;
     font-size: 7pt;
     text-align: center;

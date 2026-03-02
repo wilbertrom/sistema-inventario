@@ -13,14 +13,12 @@
 .f-group{margin-bottom:20px;}
 .input-with-btn{display:flex;}
 .input-with-btn .f-control{border-radius:var(--radio-sm) 0 0 var(--radio-sm);flex:1;}
-.input-with-btn .btn-append{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:0 var(--radio-sm) var(--radio-sm) 0;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.input-with-btn .btn-append{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:0 var(--radio-sm) var(--radio-sm) 0;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.input-with-btn .btn-append:hover{filter:brightness(1.1);}
 .btn-r{background:linear-gradient(135deg,var(--rojo),var(--rojo-mid));color:white;border:none;border-radius:var(--radio-sm);padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .25s;text-decoration:none;}
 .btn-r:hover{box-shadow:0 6px 18px rgba(165,33,25,.3);transform:translateY(-1px);color:white;text-decoration:none;}
 .btn-g{background:#f1f5f9;color:var(--texto-mid);border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s;text-decoration:none;}
 .btn-g:hover{background:#e2e8f0;color:var(--texto-dark);text-decoration:none;}
-.extra-fields{background:#f8fafc;border-radius:var(--radio-sm);padding:20px;border:1.5px dashed var(--gris-borde);margin-bottom:20px;}
-.extra-fields h6{font-size:13px;font-weight:700;color:var(--texto-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.extra-fields h6 i{color:var(--rojo);}
 .divider{height:1px;background:var(--gris-borde);margin:24px 0;}
 .form-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .alert-m{border-radius:var(--radio-sm);padding:12px 18px;font-size:13.5px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
@@ -53,8 +51,7 @@
         <?php echo validation_errors('<div class="alert-m alert-e"><i class="fas fa-exclamation-circle"></i>','</div>'); ?>
 
         <form action="<?php echo base_url('inventario/editar'); ?>" method="post" enctype="multipart/form-data">
-            <!-- IDs ocultos -->
-            <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
+            <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
             <input type="hidden" name="id_ccompus" value="<?php echo $equipo->id_ccompus; ?>">
 
             <!-- Marca -->
@@ -98,28 +95,69 @@
             <!-- Código interno -->
             <div class="f-group">
                 <label class="f-label">Código Interno <span style="color:var(--rojo);">*</span></label>
-                <input type="text" name="cod_interno" class="f-control" required
-                       value="<?php echo $equipo->cod_interno; ?>">
+                <input type="text" name="codigo_interno" class="f-control" required
+                       value="<?php echo htmlspecialchars($equipo->codigo_interno ?? ''); ?>">
             </div>
 
-            <!-- Descripción -->
+            <!-- Descripción del producto -->
             <div class="f-group">
-                <label class="f-label">Descripción / Observaciones</label>
-                <textarea name="descripcion" class="f-control" rows="3"><?php echo $equipo->descripcion; ?></textarea>
+                <label class="f-label">Descripción del producto</label>
+                <input type="text" name="descripcion" class="f-control"
+                       placeholder="Ej: Monitor 24 pulgadas LED"
+                       value="<?php echo htmlspecialchars($equipo->descripcion_producto ?? $equipo->descripcion ?? ''); ?>">
+            </div>
+
+            <!-- Unidad -->
+            <div class="f-group">
+                <label class="f-label">Unidad</label>
+                <input type="text" name="unidad" class="f-control"
+                       placeholder="Ej: Pieza, Juego, Par, Set..."
+                       value="<?php echo htmlspecialchars($equipo->unidad ?? ''); ?>">
+            </div>
+
+            <!-- Proveedor -->
+            <div class="f-group">
+                <label class="f-label">Proveedor <span style="color:var(--texto-mid);font-weight:400;">(opcional)</span></label>
+                <input type="text" name="proveedor" class="f-control"
+                       placeholder="Nombre del proveedor"
+                       value="<?php echo htmlspecialchars($equipo->proveedor ?? ''); ?>">
             </div>
 
             <!-- Estado -->
             <div class="f-group">
-                <label class="f-label">Estado <span style="color:var(--rojo);">*</span></label>
-                <select name="estado" class="f-control" required>
-                    <option value="" disabled>Seleccione un estado</option>
-                    <?php foreach($estados as $estado): ?>
-                    <option value="<?php echo $estado->id_estados; ?>"
-                            <?php echo ($estado->id_estados == $equipo->id_estados) ? 'selected' : ''; ?>>
-                        <?php echo $estado->nombre; ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="f-label">Estado del equipo <span style="color:var(--rojo);">*</span></label>
+                <div class="input-with-btn">
+                    <select name="estado" class="f-control" required>
+                        <option value="" disabled>Seleccione un estado</option>
+                        <?php foreach($estados as $estado): ?>
+                        <option value="<?php echo $estado->id_estados; ?>"
+                                <?php echo ($estado->id_estados == $equipo->id_estados) ? 'selected' : ''; ?>>
+                            <?php echo $estado->nombre; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="btn-append" data-toggle="modal" data-target="#modalAgregarEstado">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+                <small style="color:var(--texto-mid);font-size:11.5px;margin-top:4px;display:block;">
+                    <i class="fas fa-info-circle"></i>
+                    Solo verás los estados de <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </small>
+            </div>
+
+            <!-- ================================================
+                 OBSERVACIONES — campo nuevo agregado
+                 El name="observaciones" debe coincidir con el
+                 campo en el controlador inventario/editar
+                 y con la columna en la BD
+                 ================================================ -->
+            <div class="f-group">
+                <label class="f-label">Observaciones <span style="color:var(--texto-mid);font-weight:400;">(opcional)</span></label>
+                <textarea name="observaciones" class="f-control"
+                          rows="3"
+                          placeholder="Ej: Pantalla rayada, falta cable de poder..."
+                          style="resize:vertical;"><?php echo htmlspecialchars($equipo->observaciones ?? ''); ?></textarea>
             </div>
 
             <!-- Imagen -->
@@ -151,7 +189,7 @@
 </div>
 </div>
 
-<!-- Modal Marca -->
+<!-- Modal Nueva Marca -->
 <div class="modal fade" id="modalAgregarMarca" tabindex="-1" role="dialog">
     <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
@@ -160,7 +198,11 @@
         </div>
         <div class="modal-body" style="padding:24px;">
             <form action="<?php echo base_url('Inventario/nuevaMarca'); ?>" method="post">
-                <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
+                <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
+                <p style="font-size:12.5px;color:#64748b;margin-bottom:14px;">
+                    <i class="fas fa-info-circle" style="color:var(--rojo);"></i>
+                    Se agregará solo para <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </p>
                 <div class="f-group">
                     <label class="f-label">Nombre de la marca</label>
                     <input type="text" name="marca" class="f-control" required placeholder="Ej: Apple, HP...">
@@ -174,7 +216,7 @@
     </div></div>
 </div>
 
-<!-- Modal Tipo -->
+<!-- Modal Nuevo Tipo -->
 <div class="modal fade" id="modalAgregarTipo" tabindex="-1" role="dialog">
     <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
@@ -183,10 +225,38 @@
         </div>
         <div class="modal-body" style="padding:24px;">
             <form action="<?php echo base_url('Inventario/nuevoTipo'); ?>" method="post">
-                <input type="hidden" name="id_equipos" value="<?php echo $this->idencrypt->encrypt($equipo->id_equipos); ?>">
+                <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
                 <div class="f-group">
                     <label class="f-label">Nombre del tipo</label>
                     <input type="text" name="tipo" class="f-control" required placeholder="Ej: Monitor...">
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+                    <button type="button" class="btn-g" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-r"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div></div>
+</div>
+
+<!-- Modal Nuevo Estado -->
+<div class="modal fade" id="modalAgregarEstado" tabindex="-1" role="dialog">
+    <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
+        <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
+            <h5 class="modal-title" style="font-weight:700;">Nuevo Estado del Equipo</h5>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:24px;">
+            <form action="<?php echo base_url('Inventario/nuevoEstado'); ?>" method="post">
+                <input type="hidden" name="id_equipos" value="<?php echo $equipo->id_equipos; ?>">
+                <p style="font-size:12.5px;color:#64748b;margin-bottom:14px;">
+                    <i class="fas fa-info-circle" style="color:var(--rojo);"></i>
+                    Se agregará solo para <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </p>
+                <div class="f-group">
+                    <label class="f-label">Nombre del estado</label>
+                    <input type="text" name="estado_nuevo" class="f-control" required
+                           placeholder="Ej: Obsoleto, Prestado...">
                 </div>
                 <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
                     <button type="button" class="btn-g" data-dismiss="modal">Cancelar</button>

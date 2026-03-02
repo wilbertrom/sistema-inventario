@@ -29,7 +29,6 @@ class ReporteServicios extends CI_Controller
         $this->load->view('templates/footer', $data);
     }
 
-    // ── NUEVO: crear reporte ─────────────────────────────────────
     public function crear()
     {
         $año = (int) $this->input->post('año');
@@ -39,7 +38,6 @@ class ReporteServicios extends CI_Controller
             redirect('reporteservicios');
         }
 
-        // Verificar si ya existe uno para ese año en este laboratorio
         $existe = $this->ReporteServicios_model->existe_reporte(
             $año,
             $this->session->userdata('laboratorio_id')
@@ -64,7 +62,6 @@ class ReporteServicios extends CI_Controller
         redirect('reporteservicios');
     }
 
-    // ── NUEVO: eliminar reporte ──────────────────────────────────
     public function eliminar($id)
     {
         if (empty($id)) { show_404(); return; }
@@ -160,12 +157,41 @@ class ReporteServicios extends CI_Controller
         $pdf->Ln(); $pdf->Ln();
         $pdf->SetFillColor(224, 224, 224);
         $pdf->SetX($margin);
-        $pdf->Cell(32, $lineHeight, 'Laboratorio:', 1, 0, null, true);
-        $pdf->Cell(78, $lineHeight, 'Open source', 1);
-        $pdf->Cell(30, $lineHeight, 'Edificio / Campus:', 1, 0, null, true);
-        $pdf->Cell(32, $lineHeight, 'UD-4', 1);
 
-        $pdf->Ln(); $pdf->Ln();
+        // ================================================================
+        // FILA: Laboratorio | Programa Academico | Edificio
+        // ================================================================
+        // Anchos actuales (total ~172mm):
+        //   Laboratorio label : 22mm
+        //   Laboratorio valor : 35mm  <- sube para mas espacio
+        //   Prog. Acad. label : 32mm
+        //   Prog. Acad. valor : 55mm  <- sube para mas espacio
+        //   Edificio label    : 18mm
+        //   Edificio valor    : 10mm  <- sube para mas espacio
+        // Para cambiar valor de Programa Academico:
+        //   $this->session->userdata('programa_academico')
+        //   O fijo: utf8_decode('Ingenieria en Software')
+        // ================================================================
+        $pdf->Cell(22, $lineHeight, 'Laboratorio:', 1, 0, 'L', true);
+        $pdf->Cell(35, $lineHeight, utf8_decode($this->session->userdata('laboratorio_nombre') ?: ''), 1);
+        $pdf->Cell(32, $lineHeight, utf8_decode('Programa Academico:'), 1, 0, 'L', true);
+        $pdf->Cell(40, $lineHeight, utf8_decode($this->session->userdata('programa_academico') ?: ''), 1);
+        $pdf->Cell(18, $lineHeight, 'Edificio:', 1, 0, 'L', true);
+        $pdf->Cell(25, $lineHeight, utf8_decode($this->session->userdata('edificio') ?: 'UD4 UPTx'), 1);
+
+        // ================================================================
+        // ANIO AUTOMATICO centrado debajo de la fila de laboratorio
+        // ================================================================
+        // Para cambiar tamano fuente del anio: SetFont('Arial', 'B', 10)
+        // Para cambiar margen superior: Ln(8) sube o baja el numero
+        // ================================================================
+        $pdf->Ln(7);
+        $pdf->SetX($margin);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(172, 6, $año, 0, 0, 'C');
+        $pdf->SetFont('Arial', '', 9);
+
+        $pdf->Ln(5); $pdf->Ln(0);
         $pdf->SetX($margin);
         $pdf->Cell(70, 5.5, 'Mes', 1, null, 'C');
         for ($i = 1; $i <= 12; $i++) $pdf->Cell(8.5, 5.5, $i, 1);
@@ -211,26 +237,64 @@ class ReporteServicios extends CI_Controller
         }
 
         $pdf->Ln(10);
-        $pdf->SetX(30);
-        $pdf->Cell(64, 17, '', 1, 0, 'C');
-        $pdf->Cell(24, 17, '', 0, 0);
-        $pdf->Cell(64, 17, '', 1, 0, 'C');
-        $pdf->Ln();
-        $pdf->SetX(30);
-        $pdf->Cell(64, 10, utf8_decode('Elaboró:'), 0, 0, 'C');
-        $pdf->Cell(24, 10, '', 0, 0);
-        $pdf->Cell(64, 10, 'Vo. Bo.:', 0, 0, 'C');
-        $pdf->Ln();
-        $pdf->SetX(30);
-        $pdf->Cell(64, 2, 'Jefe de Laboratorio', 0, 0, 'C');
-        $pdf->Cell(24, 10, '', 0, 0);
-        $pdf->Cell(64, 2, utf8_decode('Director de Programa Educativo'), 0, 0, 'C');
-        $pdf->Ln(15);
+$pdf->SetX(30);
 
-        $pdf->SetFillColor(255, 0, 0);
+// Parte superior: label con borde LTR
+$pdf->Cell(64, 5, utf8_decode('Elaboró:'), 'LTR', 0, 'C');
+$pdf->Cell(24, 5, '', 0, 0);
+$pdf->Cell(64, 5, 'Vo. Bo.:', 'LTR', 0, 'C');
+$pdf->Ln();
+$pdf->SetX(30);
+
+// Parte media: espacio para firma con solo bordes laterales
+$pdf->Cell(64, 12, '', 'LR', 0, 'C');
+$pdf->Cell(24, 12, '', 0, 0);
+$pdf->Cell(64, 12, '', 'LR', 0, 'C');
+$pdf->Ln();
+$pdf->SetX(30);
+
+// Parte inferior: cierra el cuadro con borde LBR
+$pdf->Cell(64, 1, '', 'LBR', 0, 'C');
+$pdf->Cell(24, 1, '', 0, 0);
+$pdf->Cell(64, 1, '', 'LBR', 0, 'C');
+$pdf->Ln(5);
+$pdf->SetX(30);
+
+// Labels debajo del cuadro
+$pdf->Cell(64, 4, 'Jefe de Laboratorio', 0, 0, 'C');
+$pdf->Cell(24, 4, '', 0, 0);
+$pdf->Cell(64, 4, utf8_decode('Director de Programa Educativo'), 0, 0, 'C');
+$pdf->Ln(12);
+
+        // ================================================================
+        // PIE DE PAGINA - franja roja con texto blanco
+        // ================================================================
+        // Color de fondo: SetFillColor(R, G, B)
+        //   Rojo actual:   255, 0, 0
+        //   Rojo oscuro:   139, 26, 16  (color institucional UPTLAX)
+        //   Para cambiar: modifica los 3 numeros RGB
+        //
+        // Altura de la franja: Cell(0, 10, ...) <- el 10 es la altura en mm
+        //   Para hacerla mas delgada: cambia 10 por 7 o 6
+        //   Para hacerla mas alta:    cambia 10 por 14 o 16
+        //
+        // Tamano de letra: SetFont('Arial', 'I', 8)
+        //   El 8 es el tamano en puntos
+        //   Para letra mas grande: cambia 8 por 9 o 10
+        //   Para letra mas pequena: cambia 8 por 7 o 6
+        //   'I' = italica, 'B' = negrita, '' = normal
+        //
+        // Alineacion del texto: 'C' = centrado, 'L' = izquierda
+        //
+        // Texto: modifica el utf8_decode('...') para cambiar el texto
+        // ================================================================
+        $pdf->SetFillColor(139, 26, 16);
         $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Arial', 'I', 8);
-        $pdf->Cell(0, 10, utf8_decode('Para uso de la Universidad Politécnica de Tlaxcala mediante su Sistema de Gestión de la Calidad'), 0, 0, 'C', true);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Ln(15);
+$pdf->SetX(20);
+$pdf->Cell(145, 6, utf8_decode('Para uso de la Universidad Politécnica de Tlaxcala mediante su Sistema de Gestión de la Calidad'), 0, 0, 'L', true);
+        // ================================================================
 
         if (ob_get_level()) ob_end_clean();
         header('Content-Type: application/pdf');

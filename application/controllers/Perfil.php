@@ -1,133 +1,112 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-
-/**
- *
- * Controller Perfil
- *
- * This controller for ...
- *
- * @package   CodeIgniter
- * @category  Controller CI
- * @author    
- * @author    
- * @link      
- * @param     ...
- * @return    ...
- *
- */
-
 class Perfil extends CI_Controller
 {
     
-  public function __construct()
-  {
-    parent::__construct();
-    $this->load->library('session');
-    $this->load->model('user_model');
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->library('session');
+        $this->load->library('form_validation');
+        $this->load->model('user_model');
 
-
-    // Verificar si el usuario está logueado
-    if (!$this->session->userdata('logged_in')) {
-        // Redirigir al usuario a la página de login
-        redirect('login');
+        // Verificar si el usuario está logueado
+        if (!$this->session->userdata('logged_in')) {
+            redirect('login');
+        }
     }
-  }
 
-  public function editar()
-  {
-    $data['title'] = ucfirst("Usuario");
+    public function editar()
+{
+    $user_id = $this->session->userdata('user_id');
     
-    // Obtener datos de la sesión con verificación
-    $data['user'] = $this->session->userdata('username');
-    $data['email'] = $this->session->userdata('email');
-    
-    $id = $this->session->userdata('user_id');
-    
-    // Verificar que el ID exista
-    if (empty($id)) {
+    if (empty($user_id)) {
         redirect('login');
         return;
     }
     
-    $data['userimg'] = $this->user_model->obtenerImagen($id);
+    // Obtener datos del usuario
+    $usuario = $this->user_model->get_user_by_id($user_id);
     
-    // Si no hay imagen, establecer un valor por defecto
-    if (empty($data['userimg'])) {
-        $data['userimg'] = 'default.png'; // O cualquier imagen por defecto que tengas
+    $data['username'] = $usuario->username ?? $this->session->userdata('username');
+    $data['email'] = $usuario->email ?? $this->session->userdata('email');
+    $data['laboratorio_id'] = $usuario->laboratorio_id ?? $this->session->userdata('laboratorio_id');
+    $data['laboratorio_nombre'] = $this->session->userdata('laboratorio_nombre');
+    $data['rol'] = $usuario->rol ?? 'usuario';
+    $data['title'] = ucfirst("Mi Perfil");
+    
+    // Definir imagen por defecto según laboratorio
+    $default_images = [
+        1 => 'tux.png',      // Open Source - Pingüino Tux
+        2 => 'apple.png'     // Mac - Logo de Apple
+    ];
+    
+    $default_image = $default_images[$data['laboratorio_id']] ?? 'default.png';
+    
+    // Obtener imagen del usuario
+    $imagen_obj = $this->user_model->obtenerImagen($user_id);
+    
+    if ($imagen_obj && isset($imagen_obj->imagen) && !empty($imagen_obj->imagen)) {
+        $ruta_imagen = FCPATH . 'recursos-panel/images/usuario/' . $imagen_obj->imagen;
+        if (file_exists($ruta_imagen)) {
+            $data['imagen'] = $imagen_obj->imagen;
+        } else {
+            // Imagen no existe físicamente, usar la del laboratorio
+            $data['imagen'] = $default_image;
+        }
+    } else {
+        // No hay imagen en BD, usar la del laboratorio
+        $data['imagen'] = $default_image;
     }
 
     $this->load->view('templates/header', $data);
     $this->load->view('usuario/perfil', $data);
     $this->load->view('templates/footer');
-  }
-
-  public function actualizar()
-  {
-    $user_id = $this->session->userdata('user_id');
-    
-    // Verificar que el usuario esté logueado
-    if (empty($user_id)) {
-        redirect('login');
-        return;
-    }
-
-    // Verificar si se subió un archivo
-    if (empty($_FILES['imagen-perfil']['name'])) {
-        // Si no hay archivo, redirigir de vuelta al perfil
-        $this->session->set_flashdata('error', 'No se seleccionó ninguna imagen.');
-        redirect('perfil/editar');
-        return;
-    }
-
-    // Manejar la carga de la imagen
-    $config['upload_path'] = './recursos-panel/images/usuario/'; // Directorio donde se guardarán las imágenes
-    $config['allowed_types'] = 'jpg|jpeg|png'; // Tipos de archivos permitidos
-    $config['max_size'] = 4096;
-    $config['file_name'] = $user_id;
-    $config['overwrite'] = true; // Sobrescribir archivo existente
-
-    $this->load->library('upload', $config);
-
-    // Verificar y eliminar archivos existentes con diferentes extensiones
-    $allowed_extensions = ['jpg', 'jpeg', 'png'];
-    foreach ($allowed_extensions as $ext) {
-        $existing_file_path = $config['upload_path'] . $user_id . '.' . $ext;
-        if (file_exists($existing_file_path)) {
-            unlink($existing_file_path);
-        }
-    }
-
-    if ($this->upload->do_upload('imagen-perfil')) {
-        $upload_data = $this->upload->data();
-        $path_img = $upload_data['file_name'];
-        
-        $data_update = array(
-            'imagen' => $path_img
-        );
-        
-        // Actualizar en la base de datos
-        if ($this->user_model->actualizar_imagen_usuario($user_id, $data_update)) {
-            // Actualizar sesión
-            $this->session->set_userdata('img', $path_img);
-            
-            // Mensaje de éxito
-            $this->session->set_flashdata('success', 'Imagen actualizada correctamente.');
-        } else {
-            $this->session->set_flashdata('error', 'Error al actualizar la imagen en la base de datos.');
-        }
-        
-        // Redirigir a una página de éxito
-        redirect('perfil/editar');
-    } else {
-        // Error en la subida
-        $error = $this->upload->display_errors();
-        $this->session->set_flashdata('error', 'Error al subir la imagen: ' . $error);
-        redirect('perfil/editar');
-    }
-  }
 }
 
-/* End of file Perfil.php */
-/* Location: ./application/controllers/Perfil.php */
+    public function actualizar_datos()
+    {
+        $user_id = $this->session->userdata('user_id');
+        
+        if (empty($user_id)) {
+            redirect('login');
+            return;
+        }
+
+        $this->form_validation->set_rules('email', 'Correo electrónico', 'valid_email');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->session->set_flashdata('error_datos', validation_errors());
+        } else {
+            $data_update = array();
+            
+            $email = $this->input->post('email');
+            if (!empty($email) && $email != $this->session->userdata('email')) {
+                $data_update['email'] = $email;
+            }
+            
+            if (!empty($data_update)) {
+                $this->db->where('id', $user_id);
+                if ($this->db->update('users', $data_update)) {
+                    // Actualizar sesión
+                    if (isset($data_update['email'])) {
+                        $this->session->set_userdata('email', $data_update['email']);
+                    }
+                    $this->session->set_flashdata('success_datos', 'Datos actualizados correctamente.');
+                } else {
+                    $this->session->set_flashdata('error_datos', 'Error al actualizar los datos.');
+                }
+            } else {
+                $this->session->set_flashdata('info_datos', 'No hay cambios para guardar.');
+            }
+        }
+        
+        redirect('perfil/editar');
+    }
+
+    private function hash_password($password)
+    {
+        return hash('sha256', $password);
+    }
+}

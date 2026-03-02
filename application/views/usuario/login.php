@@ -442,7 +442,7 @@
             <div class="login-hero">
                 <div class="hero-content">
                     <div class="hero-logo">
-                        <img src="<?php echo base_url('recursos-portal/');?>images/icon/UPTx_Logo.png" alt="UPTx Logo">
+                        <img src="<?php echo base_url('assets/');?>img/logos/logo_uptlax.png" alt="UPTx Logo">
                     </div>
                     
                     <h1 class="hero-title">Sistema de Gestión de Laboratorios</h1>
@@ -558,7 +558,7 @@
                 <?php echo form_close(); ?>
                 
                 <div class="form-footer">
-                    <p>© 2024 Universidad Politécnica de Tlaxcala</p>
+                    <p>© 2026 Universidad Politécnica de Tlaxcala</p>
                     <p class="version">Sistema de Gestión de Laboratorios v2.0</p>
                 </div>
                 

@@ -19,9 +19,6 @@
 .btn-r:hover{box-shadow:0 6px 18px rgba(165,33,25,.3);transform:translateY(-1px);color:white;text-decoration:none;}
 .btn-g{background:#f1f5f9;color:var(--texto-mid);border:1.5px solid var(--gris-borde);border-radius:var(--radio-sm);padding:10px 22px;font-size:13.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s;text-decoration:none;}
 .btn-g:hover{background:#e2e8f0;color:var(--texto-dark);text-decoration:none;}
-.extra-fields{background:#f8fafc;border-radius:var(--radio-sm);padding:20px;border:1.5px dashed var(--gris-borde);margin-bottom:20px;}
-.extra-fields h6{font-size:13px;font-weight:700;color:var(--texto-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-.extra-fields h6 i{color:var(--rojo);}
 .divider{height:1px;background:var(--gris-borde);margin:24px 0;}
 .form-actions{display:flex;gap:12px;flex-wrap:wrap;}
 .alert-m{border-radius:var(--radio-sm);padding:12px 18px;font-size:13.5px;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
@@ -49,11 +46,9 @@
         <?php if($this->session->flashdata('error')): ?>
         <div class="alert-m alert-e"><i class="fas fa-exclamation-circle"></i> <?php echo $this->session->flashdata('error'); ?></div>
         <?php endif; ?>
-
         <?php if($this->session->flashdata('success')): ?>
         <div class="alert-m alert-s"><i class="fas fa-check-circle"></i> <?php echo $this->session->flashdata('success'); ?></div>
         <?php endif; ?>
-
         <?php if(isset($error)): ?>
         <div class="alert-m alert-e"><i class="fas fa-exclamation-circle"></i> <?php echo $error; ?></div>
         <?php endif; ?>
@@ -100,29 +95,68 @@
             <!-- Código interno -->
             <div class="f-group">
                 <label class="f-label">Código Interno <span style="color:var(--rojo);">*</span></label>
-                <input type="text" name="cod_interno" class="f-control"
-                       placeholder="Ej: CPU-001" required
-                       value="<?php echo set_value('cod_interno'); ?>">
+                <input type="text" name="codigo_interno" class="f-control"
+                       placeholder="Ej: 5151000135-185" required
+                       value="<?php echo set_value('codigo_interno'); ?>">
             </div>
 
-            <!-- Descripción -->
+            <!-- Descripción del producto -->
             <div class="f-group">
-                <label class="f-label">Descripción / Observaciones</label>
-                <textarea name="descripcion" class="f-control" rows="3"
-                          placeholder="Observaciones del equipo..."><?php echo set_value('descripcion'); ?></textarea>
+                <label class="f-label">Descripción del producto</label>
+                <input type="text" name="descripcion" class="f-control"
+                       placeholder="Ej: Monitor 24 pulgadas LED"
+                       value="<?php echo set_value('descripcion'); ?>">
+            </div>
+
+            <!-- Unidad -->
+            <div class="f-group">
+                <label class="f-label">Unidad</label>
+                <input type="text" name="unidad" class="f-control"
+                       placeholder="Ej: Pieza, Juego, Par, Set..."
+                       value="<?php echo set_value('unidad'); ?>">
+            </div>
+
+            <!-- Proveedor -->
+            <div class="f-group">
+                <label class="f-label">Proveedor <span style="color:var(--texto-mid);font-weight:400;">(opcional)</span></label>
+                <input type="text" name="proveedor" class="f-control"
+                       placeholder="Nombre del proveedor"
+                       value="<?php echo set_value('proveedor'); ?>">
             </div>
 
             <!-- Estado -->
             <div class="f-group">
-                <label class="f-label">Estado <span style="color:var(--rojo);">*</span></label>
-                <select name="estado" class="f-control" required>
-                    <option value="" disabled selected>Seleccione un estado</option>
-                    <?php foreach($estados as $estado): ?>
-                    <option value="<?php echo $estado->id_estados; ?>">
-                        <?php echo $estado->nombre; ?>
-                    </option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="f-label">Estado del equipo <span style="color:var(--rojo);">*</span></label>
+                <div class="input-with-btn">
+                    <select name="estado" class="f-control" required>
+                        <option value="" disabled selected>Seleccione un estado</option>
+                        <?php foreach($estados as $estado): ?>
+                        <option value="<?php echo $estado->id_estados; ?>">
+                            <?php echo $estado->nombre; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="button" class="btn-append" data-toggle="modal" data-target="#modalAgregarEstado">
+                        <i class="fas fa-plus"></i> Nuevo
+                    </button>
+                </div>
+                <small style="color:var(--texto-mid);font-size:11.5px;margin-top:4px;display:block;">
+                    <i class="fas fa-info-circle"></i>
+                    Solo verás los estados de <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </small>
+            </div>
+
+            <!-- ================================================
+                 OBSERVACIONES — campo agregado
+                 name="observaciones" debe coincidir con el
+                 controlador inventario/registrar y la BD
+                 ================================================ -->
+            <div class="f-group">
+                <label class="f-label">Observaciones <span style="color:var(--texto-mid);font-weight:400;">(opcional)</span></label>
+                <textarea name="observaciones" class="f-control"
+                          rows="3"
+                          placeholder="Ej: Pantalla rayada, falta cable de poder..."
+                          style="resize:vertical;"><?php echo set_value('observaciones'); ?></textarea>
             </div>
 
             <!-- Imagen -->
@@ -151,7 +185,7 @@
 </div>
 </div>
 
-<!-- Modal Marca -->
+<!-- Modal Nueva Marca -->
 <div class="modal fade" id="modalAgregarMarca" tabindex="-1" role="dialog">
     <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
@@ -160,6 +194,10 @@
         </div>
         <div class="modal-body" style="padding:24px;">
             <form action="<?php echo base_url('Inventario/nuevaMarca'); ?>" method="post">
+                <p style="font-size:12.5px;color:#64748b;margin-bottom:14px;">
+                    <i class="fas fa-info-circle" style="color:var(--rojo);"></i>
+                    Se agregará solo para <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </p>
                 <div class="f-group">
                     <label class="f-label">Nombre de la marca</label>
                     <input type="text" name="marca" class="f-control" required
@@ -174,7 +212,7 @@
     </div></div>
 </div>
 
-<!-- Modal Tipo -->
+<!-- Modal Nuevo Tipo -->
 <div class="modal fade" id="modalAgregarTipo" tabindex="-1" role="dialog">
     <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
         <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
@@ -197,9 +235,35 @@
     </div></div>
 </div>
 
+<!-- Modal Nuevo Estado -->
+<div class="modal fade" id="modalAgregarEstado" tabindex="-1" role="dialog">
+    <div class="modal-dialog"><div class="modal-content" style="border-radius:12px;overflow:hidden;">
+        <div class="modal-header" style="border-bottom:2px solid #f1f5f9;">
+            <h5 class="modal-title" style="font-weight:700;">Nuevo Estado del Equipo</h5>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:24px;">
+            <form action="<?php echo base_url('Inventario/nuevoEstado'); ?>" method="post">
+                <p style="font-size:12.5px;color:#64748b;margin-bottom:14px;">
+                    <i class="fas fa-info-circle" style="color:var(--rojo);"></i>
+                    Se agregará solo para <strong><?php echo $this->session->userdata('laboratorio_nombre'); ?></strong>
+                </p>
+                <div class="f-group">
+                    <label class="f-label">Nombre del estado</label>
+                    <input type="text" name="estado_nuevo" class="f-control" required
+                           placeholder="Ej: Obsoleto, Prestado, En revisión...">
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+                    <button type="button" class="btn-g" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-r"><i class="fas fa-save"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div></div>
+</div>
+
 <script>
 function confirmarRegistro() {
     return confirm('¿Confirmar el registro de este equipo?');
 }
-
 </script>
