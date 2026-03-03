@@ -9,25 +9,24 @@ class Pdf extends CI_Controller
         parent::__construct();
         $this->load->model('inventario_model');
         $this->load->library('session');
-        
-        if (!$this->session->userdata('logged_in')) {
-            redirect('login');
-        }
+        if (!$this->session->userdata('logged_in')) { redirect('login'); }
     }
 
-    public function index()
-    {
-        redirect('panel');
-    }
+    public function index() { redirect('panel'); }
 
     public function generarPdfEquipos()
     {
-        $laboratorio_id = $this->session->userdata('laboratorio_id');
-        $laboratorio_nombre = $this->session->userdata('laboratorio_nombre') ?: 
+        $laboratorio_id     = $this->session->userdata('laboratorio_id');
+        $laboratorio_nombre = $this->session->userdata('laboratorio_nombre') ?:
                              ($laboratorio_id == 1 ? 'Open Source' : 'Mac');
-        
-        $equipos = $this->inventario_model->obtener_equipos_por_laboratorio($laboratorio_id);
 
+        $encargados = [
+            1 => 'Mtra. Eulalia Cortés Flores',
+            2 => 'Ing. Leandro Álvarez Sánchez',
+        ];
+        $nombre_encargado = $encargados[$laboratorio_id] ?? '';
+
+        $equipos = $this->inventario_model->obtener_equipos_por_laboratorio($laboratorio_id);
         if (empty($equipos)) {
             $this->session->set_flashdata('error', 'No hay equipos para generar PDF');
             redirect('panel/ver_inventario');
@@ -35,102 +34,159 @@ class Pdf extends CI_Controller
 
         $pdf = new FPDF('L', 'mm', 'A4');
         $pdf->AddPage();
-        
+
         $logo_path = APPPATH . 'libraries/fpdf/images/UPTlax_Logo.png';
-        $sgc_path = APPPATH . 'libraries/fpdf/images/sgc.png';
-        
+        $sgc_path  = APPPATH . 'libraries/fpdf/images/sgc.png';
+
+        $margen_tabla = 10;
+        $ancho_total  = 277;
+        $col_logo_izq = 55;
+        $col_texto    = 167;
+        $col_logo_der = 55;
+        $y_enc = 5;
+        $h_enc = 25;
+
+        $pdf->Rect($margen_tabla, $y_enc, $ancho_total, $h_enc);
+        $pdf->Line($margen_tabla + $col_logo_izq, $y_enc,
+                   $margen_tabla + $col_logo_izq, $y_enc + $h_enc);
+        $pdf->Line($margen_tabla + $col_logo_izq + $col_texto, $y_enc,
+                   $margen_tabla + $col_logo_izq + $col_texto, $y_enc + $h_enc);
+
         if (file_exists($logo_path)) {
-            $pdf->Image($logo_path, 10, 6, 50);
+            $logo_w = 54;
+            $logo_x = $margen_tabla + ($col_logo_izq - $logo_w) / 2;
+            $pdf->Image($logo_path, $logo_x, $y_enc + 2, $logo_w);
         }
-        
         if (file_exists($sgc_path)) {
-            $pdf->Image($sgc_path, 240, 3, 50);
+            $sgc_w = 47;
+            $sgc_x = $margen_tabla + $col_logo_izq + $col_texto + ($col_logo_der - $sgc_w) / 2;
+            $pdf->Image($sgc_path, $sgc_x, $y_enc + 1, $sgc_w);
         }
 
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(0, 4, utf8_decode("Subproceso de apoyo: Laboratorios"), 0, 1, 'C');
-        $pdf->Cell(0, 4, "Formato: Existencia de materiales, equipos e insumos de laboratorios", 0, 1, 'C');
-        $pdf->Cell(0, 4, utf8_decode("Fecha de aprobación: Noviembre 2023"), 0, 1, 'C');
-        $pdf->Cell(0, 4, utf8_decode("Laboratorio: " . $laboratorio_nombre), 0, 1, 'C');
-
-        $pdf->Ln();
-        $pdf->Ln();
-        
-        // ===== ENCABEZADOS CON RELLENO GRIS CLARO =====
+        $x_texto = $margen_tabla + $col_logo_izq;
+        $pdf->SetXY($x_texto, $y_enc + 5);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($col_texto, 5, utf8_decode('Subproceso de Apoyo: Laboratorios'), 0, 1, 'C');
+        $pdf->SetX($x_texto);
         $pdf->SetFont('Arial', 'B', 9);
-        $pdf->SetFillColor(240, 240, 240); // Gris claro para los encabezados
-        
-        // ORDEN CORRECTO: No., Descripción del producto, Unidad, Código interno, Marca, Proveedor, Estado del equipo, Observaciones
-        $pdf->Cell(10, 6, 'No.', 1, 0, 'C', 1);
-        $pdf->Cell(45, 6, utf8_decode('Descripción del producto'), 1, 0, 'C', 1);
-        $pdf->Cell(15, 6, 'Unidad', 1, 0, 'C', 1);
-        $pdf->Cell(35, 6, utf8_decode('Código interno'), 1, 0, 'C', 1);
-        $pdf->Cell(20, 6, 'Marca', 1, 0, 'C', 1);
-        $pdf->Cell(30, 6, 'Proveedor', 1, 0, 'C', 1);
-        $pdf->Cell(28, 6, utf8_decode('Estado del equipo'), 1, 0, 'C', 1);
-        $pdf->Cell(55, 6, utf8_decode('Observaciones'), 1, 1, 'C', 1);
+        $pdf->Cell($col_texto, 5, utf8_decode('Formato: Existencia de Materiales e Insumos de Laboratorios'), 0, 1, 'C');
+        $pdf->SetX($x_texto);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($col_texto, 5, utf8_decode('Fecha de aprobación: octubre 2023'), 0, 1, 'C');
 
-        $pdf->Ln(2); // Pequeño espacio después de los encabezados
-        
-        // ===== DATOS DE LOS EQUIPOS =====
+        $pdf->SetXY($margen_tabla, $y_enc + $h_enc + 4);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(52, 6, utf8_decode('Nombre del Laboratorio:'), 0, 0, 'L');
+        $x_linea_ini = $margen_tabla + 52;
+        $x_linea_fin = $margen_tabla + $ancho_total;
+        $y_linea     = $pdf->GetY() + 5;
+        $pdf->Line($x_linea_ini, $y_linea, $x_linea_fin, $y_linea);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->SetXY($x_linea_ini, $y_enc + $h_enc + 4);
+        $pdf->Cell($x_linea_fin - $x_linea_ini, 6, utf8_decode($laboratorio_nombre), 0, 1, 'C');
+
+        $pdf->Ln(3);
+
+        $ancho_cols         = 10 + 70 + 15 + 35 + 25 + 30 + 28 + 55;
+        $margen_tabla_datos = ($pdf->GetPageWidth() - $ancho_cols) / 2;
+
+        $pdf->SetX($margen_tabla_datos);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetFillColor(220, 220, 220);
+        $pdf->Cell(10,  6, 'No.',                                   1, 0, 'C', true);
+        $pdf->Cell(70,  6, utf8_decode('Descripción del producto'), 1, 0, 'C', true);
+        $pdf->Cell(15,  6, 'Unidad',                                1, 0, 'C', true);
+        $pdf->Cell(35,  6, utf8_decode('Código interno'),           1, 0, 'C', true);
+        $pdf->Cell(25,  6, 'Marca',                                 1, 0, 'C', true);
+        $pdf->Cell(30,  6, 'Proveedor',                             1, 0, 'C', true);
+        $pdf->Cell(28,  6, utf8_decode('Estado del equipo'),        1, 0, 'C', true);
+        $pdf->Cell(55,  6, 'Observaciones',                         1, 1, 'C', true);
+
         $pdf->SetFont('Arial', '', 8);
         $numero = 1;
-        
         foreach ($equipos as $row) {
+            $pdf->SetX($margen_tabla_datos);
             $pdf->Cell(10, 6, $numero, 1, 0, 'C');
-            $pdf->Cell(45, 6, utf8_decode($row->descripcion ?? $row->tipo ?? ''), 1);
-            $pdf->Cell(15, 6, 'Pieza', 1, 0, 'C');
-            
-            // Código interno con fuente más pequeña si es muy largo
+            $pdf->Cell(70, 6, utf8_decode($row->descripcion_producto ?? ''), 1, 0, 'L');
+            $pdf->Cell(15, 6, utf8_decode($row->unidad ?? 'Pieza'), 1, 0, 'C');
             $codigo = $row->codigo_interno ?? '';
-            if (strlen($codigo) > 12) {
-                $pdf->SetFont('Arial', '', 6); // Fuente más pequeña
+            if (strlen($codigo) > 14) {
+                $pdf->SetFont('Arial', '', 6);
                 $pdf->Cell(35, 6, $codigo, 1, 0, 'C');
-                $pdf->SetFont('Arial', '', 8); // Restaurar fuente
+                $pdf->SetFont('Arial', '', 8);
             } else {
                 $pdf->Cell(35, 6, $codigo, 1, 0, 'C');
             }
-            
-            $pdf->Cell(20, 6, utf8_decode($row->marca ?? ''), 1);
-            $pdf->Cell(30, 6, utf8_decode($row->proveedor ?? ''), 1);
-            $pdf->Cell(28, 6, utf8_decode($row->estado ?? ''), 1, 0, 'C');
-            $pdf->Cell(55, 6, utf8_decode($row->descripcion ?? ''), 1, 1);
+            $pdf->Cell(25, 6, utf8_decode($row->marca         ?? ''), 1, 0, 'L');
+            $pdf->Cell(30, 6, utf8_decode($row->proveedor     ?? ''), 1, 0, 'L');
+            $pdf->Cell(28, 6, utf8_decode($row->estado        ?? ''), 1, 0, 'C');
+            $pdf->Cell(55, 6, utf8_decode($row->observaciones ?? ''), 1, 1, 'L');
             $numero++;
         }
 
-        $pdf->Ln(15);
-        $pdf->SetFont('Arial', '', 10);
+        // ================================================================
+        // FIRMAS Y FECHA
+        // ----------------------------------------------------------------
+        // >> MOVER LA FIRMA:
+        //    $margen_firma = $margen_tabla_datos + 80;
+        //    Sube 80 → más al centro | Baja 80 → más a la izquierda
+        //
+        // >> MOVER LA FECHA:
+        //    $margen_fecha = $margen_tabla_datos + 180;
+        //    Sube 180 → más a la derecha | Baja 180 → más al centro
+        //
+        // >> SUBIR/BAJAR TODO:
+        //    $pdf->SetY(-38);
+        //    Más negativo (-45) = más arriba | Menos (-30) = más abajo
+        //
+        // >> GROSOR LÍNEA:
+        //    SetLineWidth(0.8) → 0.2 delgada | 0.5 media | 0.8 gruesa
+        //
+        // >> TAMAÑO CUADRO FECHA:
+        //    Cell(80, 10 ...) → primer número ancho | segundo alto
+        // ================================================================
 
-        $margin = 50;
-        $pdf->SetY(-62);
-        $pdf->SetX($margin);
+        $pdf->SetY(-40);
+        $margen_firma = $margen_tabla_datos + 60;  // ← ajusta la firma
+        $margen_fecha = $margen_tabla_datos + 180; // ← ajusta la fecha
+        $y_base = $pdf->GetY();
 
-        $y_position = $pdf->GetY() - 3;
-        $pdf->Line($margin, $y_position, 60 + $margin, $y_position);
+        // Línea de firma gruesa
+        $pdf->SetLineWidth(0.8);
+        $pdf->Line($margen_firma, $y_base, $margen_firma + 60, $y_base);
+        $pdf->SetLineWidth(0.2);
 
-        $pdf->Cell(100, 6, utf8_decode('Mtra. Eulalia Cortés F.'), 0, 0, 'L');
-        $pdf->Cell(0, 6, '', 0, 1);
-        $pdf->SetX($margin);
+        // Nombre encargado en negrita, centrado — UNA sola vez
+        $pdf->SetXY($margen_firma, $y_base + 1);
+        $pdf->SetFont('Arial', 'B', 9);
+        $pdf->Cell(60, 5, utf8_decode($nombre_encargado), 0, 1, 'C');
 
-        $pdf->Cell(100, 6, utf8_decode('Jefe (a) de laboratorio de Ingeniería'), 0, 0, 'L');
-        $pdf->Cell(0, 6, '', 0, 1);
-        $pdf->SetX($margin);
+        // Elaboró centrado bajo el nombre
+        $pdf->SetX($margen_firma);
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell(60, 5, utf8_decode('Elaboró'), 0, 0, 'C');
 
-        $pdf->Cell(100, 6, utf8_decode('Elaboró'), 0, 0, 'L');
-        $pdf->SetX(100);
+        // Cuadro de fecha — texto normal, sin negrita, con borde
+        $pdf->SetXY($margen_fecha, $y_base + 10); 
+        $pdf->SetFont('Arial', '', 9);
+        $meses = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+        $fecha_txt = 'Fecha de inventario: ' . date('d') . ' de '
+                   . $meses[(int)date('n')] . ' de ' . date('Y');
+        // Borde del cuadro más grueso y negro
+// Para cambiar grosor: modifica SetLineWidth(0.8) → más alto = más grueso
+// Para cambiar posición: ya la controla $margen_fecha arriba
+$pdf->SetDrawColor(0, 0, 0);      // color negro puro
+$pdf->SetLineWidth(0.8);           // ← grosor del borde (0.8 grueso, 1.5 muy grueso)
+$pdf->Rect($margen_fecha, $y_base - 5, 80, 10); //
+$pdf->SetLineWidth(0.2);           // restaurar grosor normal
 
-        $pdf->Cell(0, 6, 'Fecha: ' . date('d/m/Y'), 0, 1, 'R');
+// Texto dentro del cuadro (sin borde, encima del rect)
+$pdf->SetXY($margen_fecha + 2, $y_base - 5 + 2);
+$pdf->SetFont('Arial', '', 9);
+$pdf->Cell(76, 6, utf8_decode($fecha_txt), 0, 0, 'L');
 
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFillColor(192, 0, 0);
-
-        $pdf->Ln();
-        $pdf->Cell(0, 10, utf8_decode('Para uso de la Universidad Politécnica de Tlaxcala mediante su Sistema de Gestión de la Calidad'), 0, 1, 'C', 1);
-
-        if (ob_get_level()) {
-            ob_end_clean();
-        }
+        if (ob_get_level()) ob_end_clean();
 
         $pdf->Output('I', 'reporte_equipos_' . $laboratorio_nombre . '_' . date('Y-m-d') . '.pdf');
         exit;

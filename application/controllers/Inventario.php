@@ -44,6 +44,7 @@ class Inventario extends MY_Controller
             'modelo'              => $this->input->post('modelo') ?: null,
             'proveedor'           => $this->input->post('proveedor') ?: null,
             'unidad'              => $this->input->post('unidad') ?: null,
+            'observaciones'       => $this->input->post('observaciones') ?: null,
         );
 
         $id_equipo = $this->Inventario_model->registrar_inventario($data_equipo);
@@ -102,6 +103,7 @@ class Inventario extends MY_Controller
             'id_estados'          => (int) $this->input->post('estado'),
             'proveedor'           => $this->input->post('proveedor') ?: null,
             'unidad'              => $this->input->post('unidad') ?: null,
+            'observaciones'       => $this->input->post('observaciones') ?: null,
         );
 
         if ((int) $this->input->post('tipo') == 1 && !empty($id_ccompus)) {

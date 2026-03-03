@@ -16,16 +16,21 @@ class Login extends MY_Controller
     }
 
     public function index()
-    {
-        if ($this->session->userdata('logged_in')) {
-            redirect('panel');
-        }
-        
-        $lab = $this->input->get('lab');
-        $data['laboratorio_seleccionado'] = $lab;
-        
-        $this->load->view('usuario/login', $data);
+{
+    if ($this->session->userdata('logged_in')) {
+        redirect('panel');
     }
+    
+    $lab = $this->input->get('lab');
+    
+    // AGREGAR ESTO: si no viene con lab, redirigir al portal
+    if (empty($lab)) {
+        redirect('portal/acerca_de');
+    }
+    
+    $data['laboratorio_seleccionado'] = $lab;
+    $this->load->view('usuario/login', $data);
+}
 
     public function do_login() 
     {

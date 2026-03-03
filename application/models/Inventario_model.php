@@ -133,8 +133,8 @@ class Inventario_model extends CI_Model {
   }
   
   public function obtener_equipos()
-  {
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+{
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.observaciones');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
@@ -142,15 +142,15 @@ class Inventario_model extends CI_Model {
     $this->db->where('equipos.laboratorio_id', $this->session->userdata('laboratorio_id'));
     $query = $this->db->get();
     return ($query === false) ? array() : $query->result();
-  }
+}
 
-  public function obtener_equipos_paginados($limit, $start) 
-  {
+ public function obtener_equipos_paginados($limit, $start) 
+{
     $laboratorio_id = $this->session->userdata('laboratorio_id');
     if (empty($laboratorio_id)) {
         return array();
     }
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.observaciones');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
@@ -160,7 +160,7 @@ class Inventario_model extends CI_Model {
     $this->db->order_by('equipos.id_equipos', 'DESC');
     $query = $this->db->get();
     return $query->result();
-  }
+}
 
   public function obtener_equipo_computo($id_equipos)
   {
@@ -269,13 +269,13 @@ class Inventario_model extends CI_Model {
   }
   
   public function obtener_equipos_por_tipo_paginados($tipo, $limit, $start) 
-  {
+{
     if (empty($tipo)) {
         return array();
     }
     $limit = is_numeric($limit) ? (int)$limit : 10;
     $start = is_numeric($start) ? (int)$start : 0;
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.observaciones');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
@@ -285,7 +285,7 @@ class Inventario_model extends CI_Model {
     $this->db->limit($limit, $start);
     $query = $this->db->get();
     return ($query === false) ? array() : $query->result();
-  }
+}
 
   public function obtener_equipos_por_codigo($codigo_interno)
   {
@@ -311,12 +311,12 @@ class Inventario_model extends CI_Model {
     return $this->db->count_all_results();
   }
 
-  public function obtener_equipos_por_laboratorio($laboratorio_id)
-  {
+ public function obtener_equipos_por_laboratorio($laboratorio_id)
+{
     if (empty($laboratorio_id)) {
         return array();
     }
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.proveedor');
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.observaciones, equipos.proveedor');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
@@ -324,7 +324,7 @@ class Inventario_model extends CI_Model {
     $this->db->where('equipos.laboratorio_id', $laboratorio_id);
     $query = $this->db->get();
     return $query->result();
-  }
+}
 
   public function contar_equipos_por_laboratorio($laboratorio_id)
   {
@@ -336,8 +336,8 @@ class Inventario_model extends CI_Model {
   }
 
   public function obtener_equipos_por_laboratorio_paginados($laboratorio_id, $limit, $start)
-  {
-    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado');
+{
+    $this->db->select('equipos.*, marcas.nombre as marca, tipos.nombre as tipo, estados.nombre as estado, equipos.observaciones');
     $this->db->from('equipos');
     $this->db->join('marcas', 'equipos.id_marcas = marcas.id_marcas', 'left');
     $this->db->join('tipos', 'equipos.id_tipos = tipos.id_tipos', 'left');
@@ -346,7 +346,7 @@ class Inventario_model extends CI_Model {
     $this->db->limit($limit, $start);
     $query = $this->db->get();
     return $query->result();
-  }
+}
 }
 
 /* End of file Inventario_model.php */
