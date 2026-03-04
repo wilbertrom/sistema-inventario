@@ -153,7 +153,7 @@ class ReporteServicios extends CI_Controller
         ];
         $nombre_encargado = $encargados[$laboratorio_id] ?? '';
 
-        // Logos en base64
+        // Logos en base64 (TAMAÑO AUMENTADO)
         $logo_path = APPPATH . 'libraries/fpdf/images/UPTlax_Logo.png';
         $sgc_path  = APPPATH . 'libraries/fpdf/images/sgc.png';
         $logo_b64  = file_exists($logo_path)
@@ -199,11 +199,29 @@ class ReporteServicios extends CI_Controller
 <head>
 <meta charset="UTF-8">
 <style>
+/* ── OBSERVACIONES ── */
+.obs-wrap {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
 
+.obs-wrap td {
+    border: 1.5px solid #000;
+    height: 55px;           /* ALTURA DEL RECUADRO */
+    vertical-align: top;
+    padding: 6px;
+    font-size: 8pt;
+}
+
+.obs-label {
+    font-weight: normal;
+}
 /* ── Página A4 portrait ── */
 @page {
     size: A4 portrait;
-    margin: 12mm 10mm 10mm 10mm;
+    margin: 5mm 30mm 5mm 30mm; /* AUMENTADO: top:20mm, right:15mm, bottom:15mm, left:15mm */
 }
 body {
     font-family: Arial, Helvetica, sans-serif;
@@ -213,37 +231,39 @@ body {
     padding: 0;
 }
 
-/* ── ENCABEZADO ── */
+/* ── ENCABEZADO CON LOGOS MÁS GRANDES ── */
 .header-wrap {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 .header-wrap td {
     padding: 0;
     vertical-align: middle;
 }
-.cell-logo-izq { width: 70px; text-align: left; }
-.cell-logo-izq img { width: 65px; height: auto; }
+.cell-logo-izq { width: 90px; text-align: left; } /* AUMENTADO */
+.cell-logo-izq img { width: 150px; height: auto; } /* AUMENTADO de 65px a 85px */
 .cell-texto {
     text-align: center;
     font-size: 9pt;
     line-height: 1.7;
 }
-.cell-logo-der { width: 70px; text-align: right; }
-.cell-logo-der img { width: 60px; height: auto; }
+.cell-logo-der { width: 90px; text-align: right; } /* AUMENTADO */
+.cell-logo-der img { width: 130px; height: auto; } /* AUMENTADO de 60px a 80px */
 
 /* ── INFO LABORATORIO ── */
 .info-wrap {
     width: 100%;
     border-collapse: collapse;
     border: 0.2px dashed #000;
-    margin-bottom: 6px;
+    margin-bottom: 20px; /* AUMENTADO */
+    margin-top: 24px;     /* ← AGREGA ESTA LÍNEA para espacio ANTES */
 }
 .info-wrap td {
     border: 0.2px dashed #000;
-   
-    font-size: 8.5pt;
+    font-size: 8.0pt;
+    height: 5px; /* ← CAMBIA ESTE VALOR para ajustar la altura */
+
 }
 /* Labels con gris igual al de categorías */
 .lbl { background: #e0e0e0; font-weight: normal; }
@@ -252,7 +272,7 @@ body {
 .anio-row {
     text-align: center;
     font-size: 9pt;
-    margin-bottom: 3px;
+    margin-bottom: -2px; /* AUMENTADO */
 }
 
 /* ── TABLA PRINCIPAL ── */
@@ -260,19 +280,19 @@ body {
     width: 100%;
     border-collapse: collapse;
     font-size: 8pt;
-    margin-bottom: 12px;
+    margin-bottom: 5px; /* AUMENTADO */
 }
 .tabla-main th {
     border: 1.5px solid #000;
     text-align: center;
-    padding: 3px 1px;
+    
     background: #fff;
     font-weight: normal;
     font-size: 8pt;
 }
 .tabla-main td {
     border: 1.5px solid #000;
-    padding: 2px 3px;
+   
     font-size: 8pt;
 }
 .th-srv  { width: 38%; text-align: center; }
@@ -286,7 +306,7 @@ body {
     background: #e0e0e0;
     text-align: center;
     font-weight: normal;
-    padding: 4px 3px;
+    padding: 5px 4px; /* AUMENTADO */
     font-size: 8.5pt;
 }
 
@@ -294,80 +314,80 @@ body {
 .firmas-wrap {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
-    margin-bottom: 6px;
+    margin-top: 24px;
+    margin-bottom: 50px;
 }
-.firmas-wrap td { padding: 0; }
 
 .firma-box {
-    width: 42%;
-    border: 0.2px dashed #000;
+    height: 90px;
+    border: 0.8px dashed #000;
     text-align: center;
-    vertical-align: top;
+    padding-top: 6px;
 }
+
 .firma-label {
-    border-bottom: 1.5px solid #00000000;
-    padding: 3px 5px;
     font-size: 8pt;
-    text-align: left;
+    margin-bottom: 35px; /* espacio para firma */
 }
-.firma-espacio {
-    height: 28px;
-}
+
 .firma-nombre {
-    border-top: 1.5px solid #00000000;
-    padding: 3px 5px;
     font-weight: bold;
     font-size: 8pt;
-    text-align: center;
 }
+
 .firma-cargo {
-    padding: 2px 5px;
+    margin-top: 5px;
     font-size: 7.5pt;
     text-align: center;
 }
-.firma-sep { width: 16%; }
 
+.firma-sep {
+    width: 16%;
+}
+}
 /* ── PIE DE PÁGINA — franja roja ── */
 .footer-bar {
     width: 100%;
     background-color: #8B1A10;
     color: #ffffff;
     font-size: 7.5pt;
-    padding: 4px 8px;
-    margin-top: 8px;
-    /* dompdf: usar tabla para el fondo */
+    padding: 5px 10px; /* AUMENTADO */
+    margin-top: 10px; /* AUMENTADO */
 }
 .footer-table {
     width: 100%;
     border-collapse: collapse;
     background-color: #8B1A10;
+    margin-top: 180px; /* AUMENTADO */
+    
 }
 .footer-table td {
     background-color: #8B1A10;
     color: #ffffff;
-    font-size: 7.5pt;
-    padding: 4px 8px;
+    font-size: 8.5pt;
+    
+    text-align: center;
+
 }
 
 </style>
 </head>
 <body>
 
-<!-- ══ ENCABEZADO ══ -->
+<!-- ══ ENCABEZADO CON LOGOS MÁS GRANDES ══ -->
 <table class="header-wrap">
 <tr>
     <td class="cell-logo-izq">
         ' . ($logo_b64 ? '<img src="' . $logo_b64 . '">' : '') . '
     </td>
     <td class="cell-texto">
-        Subproceso de Apoyo: Laboratorios<br>
+        Subproceso de Apoyo:<strong> Laboratorios </strong><br>
         Formato: <strong>Lista de Cotejo para Laboratorios</strong><br>
         Fecha de aprobaci&oacute;n: <strong>octubre 2023</strong>
     </td>
     <td class="cell-logo-der">
         ' . ($sgc_b64 ? '<img src="' . $sgc_b64 . '">' : '') . '
-    </td>
+    </td>A
 </tr>
 </table>
 
@@ -375,11 +395,11 @@ body {
 <table class="info-wrap">
 <tr>
     <td class="lbl" style="width:13%;">Laboratorio:</td>
-    <td style="width:22%;">' . htmlspecialchars($laboratorio_nombre) . '</td>
+    <td style="width:16%;">' . htmlspecialchars($laboratorio_nombre) . '</td>
     <td class="lbl" style="width:19%;">Programa Acad&eacute;mico</td>
-    <td style="width:30%;">' . htmlspecialchars($programa_academico) . '</td>
+    <td style="width:20%;">' . htmlspecialchars($programa_academico) . '</td>
     <td class="lbl" style="width:8%;">Edificio:</td>
-    <td style="width:8%;">' . htmlspecialchars($edificio) . '</td>
+    <td style="width:20%;">' . htmlspecialchars($edificio) . '</td>
 </tr>
 </table>
 
@@ -408,22 +428,32 @@ body {
     ' . $filas_datos . '
 </tbody>
 </table>
-
-<!-- ══ FIRMAS ══ -->
+<!-- ══ OBSERVACIONES ══ -->
+<table class="obs-wrap">
+<tr>
+    <td>
+        <span class="obs-label">Observaciones:</span>
+    </td>
+</tr>
+</table>
 <table class="firmas-wrap">
 <tr>
-    <td class="firma-box">
-        <div class="firma-label">Elabor&oacute;:</div>
-        <div class="firma-espacio"></div>
-        <div class="firma-nombre">' . htmlspecialchars($nombre_encargado) . '</div>
-        <div class="firma-cargo">Jefe de Laboratorio</div>
+    <td style="width:42%; text-align:center;">
+        <div class="firma-box">
+            <div class="firma-label"><strong>Elaboró</strong></div>
+            <div class="firma-nombre"><?= htmlspecialchars($nombre_encargado) ?></div>
+        </div>
+        <div class="firma-cargo"><strong>Jefe de Laboratorio</strong></div>
     </td>
+
     <td class="firma-sep"></td>
-    <td class="firma-box">
-        <div class="firma-label">Vo. Bo.:</div>
-        <div class="firma-espacio"></div>
-        <div class="firma-nombre">&nbsp;</div>
-        <div class="firma-cargo">Director de Programa Educativo</div>
+
+    <td style="width:42%; text-align:center;">
+        <div class="firma-box">
+            <div class="firma-label"><strong>Vo. Bo.</strong></div>
+            <div class="firma-nombre">&nbsp;</div>
+        </div>
+        <div class="firma-cargo"><strong>Director de Programa Educativo</strong></div>
     </td>
 </tr>
 </table>
@@ -456,7 +486,7 @@ body {
 
         $dompdf->stream(
             'reporte_anual_' . $año . '.pdf',
-            ['Attachment' => false] // false = abrir en navegador | true = descargar
+            ['Attachment' => false]
         );
         exit;
     }
