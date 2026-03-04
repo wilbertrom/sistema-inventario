@@ -3,9 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <style>
+/* Declaración de fuente Calibri para todos los sistemas */
+@font-face {
+    font-family: 'Calibri';
+    src: local('Calibri'), local('Calibri Regular'), local('Calibri');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Calibri';
+    src: local('Calibri Bold'), local('Calibri-Bold');
+    font-weight: bold;
+    font-style: normal;
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
 body { 
-    font-family: 'Arial Narrow', Arial, sans-serif; 
+    font-family: 'Calibri', 'Arial', sans-serif; 
     color: #000; 
     background: #fff; 
     margin: 0px 40px 0px 90px;
@@ -52,24 +67,25 @@ body {
     text-align:center; 
     line-height:18mm; 
     margin:0 auto; 
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .enc-sub { 
     font-size:8pt; 
     color:#000; 
     margin-bottom:1.5mm; 
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .enc-titulo { 
     font-size:11pt; 
-    font-weight:bold; 
+    font-weight:bold;  /* AHORA ESTÁ EN NEGRITA */
     color:#000; 
     margin-bottom:1.5mm; 
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .enc-fecha { 
     font-size:8pt; 
     color:#000; 
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .enc-anio { 
     text-align:center; 
@@ -77,7 +93,7 @@ body {
     font-weight:bold; 
     margin:3mm 0; 
     color:#000; 
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* ===== TABLA DE INFORMACIÓN ===== */
@@ -91,7 +107,7 @@ body {
 .t-info td {
     padding: 0;
     font-size: 9pt;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
     border: 0.2px dashed #000;
 }
 .t-info .lbl {
@@ -107,30 +123,17 @@ body {
     margin: 0;
     border-collapse: collapse;
     margin-bottom: 3mm;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
-
-/*
-   Columnas ajustadas para máximo parecido a la imagen:
-   - N°: muy pequeño
-   - Laboratorio: moderado
-   - Actividad a realizar: el más ancho
-   - Estatus: solo para "Planeado/Realizado"
-   - 12 meses: al mínimo posible
-   - Observaciones: amplio
-*/
-/* Distribución optimizada REAL */
-
 
 .tp td {
     border: 0.2px dashed #000;
     padding: 0.8mm 1pt;
     vertical-align: middle;
     font-size: 6.5pt;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
     word-wrap: break-word;
 }
-
 
 /* Borde exterior azul oscuro de toda la tabla */
 .tp {
@@ -148,6 +151,7 @@ body {
     font-size: 6.5pt;
     padding: 1mm 1pt;
     border: 0.2px dashed #000;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* Encabezado "Meses" agrupa los 12 */
@@ -158,6 +162,7 @@ body {
     font-size: 6.5pt;
     border: 0.2px dashed #000;
     padding: 1mm 0;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* Subencabezados de cada mes */
@@ -168,14 +173,16 @@ body {
     font-weight: normal;
     padding: 0;
     letter-spacing: -0.5pt;
-border: 0.2px dashed #000;
+    border: 0.2px dashed #000;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* Etiquetas Planeado / Realizado */
 .tp .est-lbl {
     font-size: 6pt;
     text-align: center;
-border: 0.2px dashed #000;
+    border: 0.2px dashed #000;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* Última fila: borde inferior azul */
@@ -189,6 +196,7 @@ border: 0.2px dashed #000;
     font-size: 7pt; 
     display: block;
     text-align: center;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* ===== TABLA DE FIRMAS ===== */
@@ -197,22 +205,22 @@ border: 0.2px dashed #000;
     text-align: center; 
     margin-bottom: 6mm;
     border-collapse: collapse;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .t-firmas td {
-border: 0.2px dashed #000;
+    border: 0.2px dashed #000;
     text-align: center; 
     padding: 0px;
     font-size: 7pt;
     text-align: center;
     vertical-align: middle;
-    font-family: 'Arial Narrow', Arial, sans-serif;
-
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .tf-titulo {
     font-weight: normal;
     font-size: 7pt;
     border-bottom: 1px solid #ffffff !important;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 .tf-espacio { 
     height: 12mm;
@@ -222,6 +230,7 @@ border: 0.2px dashed #000;
 .tf-lbl { 
     font-size: 7pt; 
     color: #000;
+    font-family: 'Calibri', 'Arial', sans-serif;
 }
 
 /* ===== PIE DE PÁGINA ===== */
@@ -230,7 +239,7 @@ border: 0.2px dashed #000;
     color: #fff;
     font-size: 7.5pt;
     font-weight: bold;
-    font-family: 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Calibri', 'Arial', sans-serif;
     display: inline-block;
     margin-top:0; 
     margin-left: 6mm;
@@ -257,7 +266,7 @@ border: 0.2px dashed #000;
         </td>
         <td class="enc-centro">
             <div class="enc-sub">Subproceso de Apoyo: <strong>Laboratorios</strong></div>
-            <div class="enc-titulo">Formato: Programa Anual de Mantenimiento a Laboratorios</div>
+            <div class="enc-sub">Formato:<strong> Programa Anual de Mantenimiento a Laboratorios</strong></div>
             <div class="enc-fecha">Fecha de aprobación: <strong>octubre 2023</strong></div>
         </td>
         <td class="enc-logo-der">
@@ -397,52 +406,52 @@ border: 0.2px dashed #000;
     </tbody>
     </table>
 
- <!-- TABLA DE FIRMAS -->
-<table class="t-firmas">
-    <tr>
-        <td class="tf-titulo" style="width:15%;">Responsable</td>
-        <td class="tf-titulo" style="width:15%;">Revisó</td>
-        <td class="tf-titulo" style="width:15%;">Autorizó</td>
-        <td class="tf-titulo" style="width:18.3%;">Primer cuatrimestre</td>
-        <td class="tf-titulo" style="width:18.3%;">Segundo cuatrimestre</td>
-        <td class="tf-titulo" style="width:18.3%;">Tercer cuatrimestre</td>
-    </tr>
-    <tr>
-        <!-- Responsable -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 1mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($responsable ?? 'Mtra. Eulalia Cortés F.'); ?>
-        </td>
-        <!-- Revisó -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 1mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($revisor ?? 'Director de Programa Educativo'); ?>
-        </td>
-        <!-- Autorizó -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($autorizo ?? 'Secretaría Académica'); ?>
-        </td>
-        <!-- Primer cuatrimestre -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($primer_cuatrimestre ?? ''); ?>
-        </td>
-        <!-- Segundo cuatrimestre -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($segundo_cuatrimestre ?? ''); ?>
-        </td>
-        <!-- Tercer cuatrimestre -->
-        <td class="tf-espacio" style="text-align: right; padding-right: 3mm; vertical-align: bottom;">
-            <?php echo htmlspecialchars($tercer_cuatrimestre ?? ''); ?>
-        </td>
-    </tr>
-    <tr>
-        <td class="tf-lbl">Nombre y firma del Área</td>
-        <td class="tf-lbl">Director de Programa Educativo</td>
-        <td class="tf-lbl">Secretaría Académica</td>
-        <td colspan="3" class="tf-lbl">
-            Nombre, firma y sello de la Dirección de Programa Educativo
-            de revisar cuatrimestralmente el estado programático
-        </td>
-    </tr>
-</table>
+    <!-- TABLA DE FIRMAS -->
+    <table class="t-firmas">
+        <tr>
+            <td class="tf-titulo" style="width:15%;">Responsable</td>
+            <td class="tf-titulo" style="width:15%;">Revisó</td>
+            <td class="tf-titulo" style="width:15%;">Autorizó</td>
+            <td class="tf-titulo" style="width:18.3%;">Primer cuatrimestre</td>
+            <td class="tf-titulo" style="width:18.3%;">Segundo cuatrimestre</td>
+            <td class="tf-titulo" style="width:18.3%;">Tercer cuatrimestre</td>
+        </tr>
+        <tr>
+            <!-- Responsable -->
+            <td class="tf-espacio" style="text-align: Center; padding-right: 1mm; vertical-align: bottom;">
+                <?php echo htmlspecialchars($responsable ?? 'Mtra. Eulalia Cortés F.'); ?>
+            </td>
+            <!-- Revisó -->
+            <td class="tf-espacio" style="text-align: center; vertical-align: bottom;">
+                <?php echo htmlspecialchars($revisor ?? 'Director de Programa Educativo'); ?>
+            </td>
+            <!-- Autorizó -->
+            <td class="tf-espacio" style="text-align: center; vertical-align: bottom;">
+                <?php echo htmlspecialchars($autorizo ?? 'Secretaría Académica'); ?>
+            </td>
+            <!-- Primer cuatrimestre -->
+            <td class="tf-espacio" style="text-align: center; vertical-align: bottom;">
+                <?php echo htmlspecialchars($primer_cuatrimestre ?? ''); ?>
+            </td>
+            <!-- Segundo cuatrimestre -->
+            <td class="tf-espacio" style="text-align: center; vertical-align: bottom;">
+                <?php echo htmlspecialchars($segundo_cuatrimestre ?? ''); ?>
+            </td>
+            <!-- Tercer cuatrimestre -->
+            <td class="tf-espacio" style="text-align: center; vertical-align: bottom;">
+                <?php echo htmlspecialchars($tercer_cuatrimestre ?? ''); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="tf-lbl">Nombre y firma del Área</td>
+            <td class="tf-lbl">Director de Programa Educativo</td>
+            <td class="tf-lbl">Secretaría Académica</td>
+            <td colspan="3" class="tf-lbl">
+                Nombre, firma y sello de la Dirección de Programa Educativo
+                de revisar cuatrimestralmente el estado programático
+            </td>
+        </tr>
+    </table>
 
     <!-- PIE DE PÁGINA -->
     <div class="pie">

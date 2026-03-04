@@ -1,6 +1,10 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-require_once APPPATH . 'libraries/fpdf/fpdf.php';
+
+require_once FCPATH . 'vendor/autoload.php';
+
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class ReporteServicios extends CI_Controller
 {
@@ -133,174 +137,327 @@ class ReporteServicios extends CI_Controller
     {
         if (empty($año)) { show_404(); return; }
 
-        $pdf = new FPDF();
-        $pdf->AliasNbPages();
-        $pdf->AddPage();
-        $pdf->SetFont('Arial', '', 11);
+        // ================================================================
+        // ENCARGADOS POR LABORATORIO
+        // 1 => Open Source | 2 => Mac
+        // Para agregar más: $encargados[3] = 'Nombre encargado';
+        // ================================================================
+        $laboratorio_id     = $this->session->userdata('laboratorio_id');
+        $laboratorio_nombre = $this->session->userdata('laboratorio_nombre') ?: '';
+        $programa_academico = $this->session->userdata('programa_academico') ?: '';
+        $edificio           = $this->session->userdata('edificio') ?: 'UD4 UPTx';
 
+        $encargados = [
+            1 => 'Eulalia Cortés Flores',
+            2 => 'Leandro Álvarez Sánchez',
+        ];
+        $nombre_encargado = $encargados[$laboratorio_id] ?? '';
+
+        // Logos en base64
         $logo_path = APPPATH . 'libraries/fpdf/images/UPTlax_Logo.png';
         $sgc_path  = APPPATH . 'libraries/fpdf/images/sgc.png';
+        $logo_b64  = file_exists($logo_path)
+                   ? 'data:image/png;base64,' . base64_encode(file_get_contents($logo_path))
+                   : '';
+        $sgc_b64   = file_exists($sgc_path)
+                   ? 'data:image/png;base64,' . base64_encode(file_get_contents($sgc_path))
+                   : '';
 
-        if (file_exists($logo_path)) $pdf->Image($logo_path, 10, 9, 37);
-        if (file_exists($sgc_path))  $pdf->Image($sgc_path, 160, 6.5, 33);
-
-        $pdf->SetY(5);  $pdf->Cell(0, 10, 'Subproceso de Apoyo: Laboratorios', 0, 0, 'C');
-        $pdf->SetY(10); $pdf->Cell(0, 10, 'Formato: Lista de Cotejo para Laboratorios', 0, 0, 'C');
-        $pdf->SetY(15); $pdf->Cell(0, 10, utf8_decode('Fecha de aprobación: octubre 2023'), 0, 0, 'C');
-
-        $lineHeight = 5;
-        $pdf->SetLeftMargin(10);
-        $pdf->SetRightMargin(10);
-        $margin = 20;
-
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Ln(); $pdf->Ln();
-        $pdf->SetFillColor(224, 224, 224);
-        $pdf->SetX($margin);
-
-        // ================================================================
-        // FILA: Laboratorio | Programa Academico | Edificio
-        // ================================================================
-        // Anchos actuales (total ~172mm):
-        //   Laboratorio label : 22mm
-        //   Laboratorio valor : 35mm  <- sube para mas espacio
-        //   Prog. Acad. label : 32mm
-        //   Prog. Acad. valor : 55mm  <- sube para mas espacio
-        //   Edificio label    : 18mm
-        //   Edificio valor    : 10mm  <- sube para mas espacio
-        // Para cambiar valor de Programa Academico:
-        //   $this->session->userdata('programa_academico')
-        //   O fijo: utf8_decode('Ingenieria en Software')
-        // ================================================================
-        $pdf->Cell(22, $lineHeight, 'Laboratorio:', 1, 0, 'L', true);
-        $pdf->Cell(35, $lineHeight, utf8_decode($this->session->userdata('laboratorio_nombre') ?: ''), 1);
-        $pdf->Cell(32, $lineHeight, utf8_decode('Programa Academico:'), 1, 0, 'L', true);
-        $pdf->Cell(40, $lineHeight, utf8_decode($this->session->userdata('programa_academico') ?: ''), 1);
-        $pdf->Cell(18, $lineHeight, 'Edificio:', 1, 0, 'L', true);
-        $pdf->Cell(25, $lineHeight, utf8_decode($this->session->userdata('edificio') ?: 'UD4 UPTx'), 1);
-
-        // ================================================================
-        // ANIO AUTOMATICO centrado debajo de la fila de laboratorio
-        // ================================================================
-        // Para cambiar tamano fuente del anio: SetFont('Arial', 'B', 10)
-        // Para cambiar margen superior: Ln(8) sube o baja el numero
-        // ================================================================
-        $pdf->Ln(7);
-        $pdf->SetX($margin);
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(172, 6, $año, 0, 0, 'C');
-        $pdf->SetFont('Arial', '', 9);
-
-        $pdf->Ln(5); $pdf->Ln(0);
-        $pdf->SetX($margin);
-        $pdf->Cell(70, 5.5, 'Mes', 1, null, 'C');
-        for ($i = 1; $i <= 12; $i++) $pdf->Cell(8.5, 5.5, $i, 1);
-        $pdf->Ln();
-        $pdf->SetX($margin);
-        $pdf->Cell(70, 9, 'Dia', 1, null, 'C');
-        for ($i = 1; $i <= 12; $i++) $pdf->Cell(8.5, 9, '', 1);
-        $pdf->Ln();
-
+        // Datos del reporte
         $datos_query = $this->ReporteServicios_model->getDatosReporte($año);
-        $datos = ($datos_query === null) ? array() : $datos_query->result_array();
+        $datos       = ($datos_query === null) ? [] : $datos_query->result_array();
 
         $datosAgrupados = [];
         foreach ($datos as $dato) {
             if (isset($dato['mes'], $dato['nombre_servicio'], $dato['status'], $dato['nombre_categoria'])) {
                 $cat = $dato['nombre_categoria'];
                 $srv = $dato['nombre_servicio'];
-                if (!isset($datosAgrupados[$cat])) $datosAgrupados[$cat] = [];
+                if (!isset($datosAgrupados[$cat]))       $datosAgrupados[$cat]       = [];
                 if (!isset($datosAgrupados[$cat][$srv])) $datosAgrupados[$cat][$srv] = array_fill(1, 12, '');
                 $datosAgrupados[$cat][$srv][$dato['mes']] = $dato['status'];
             }
         }
 
-        $pdf->SetFont('Arial', '', 9);
+        // Construir filas de datos
+        $filas_datos = '';
         foreach ($datosAgrupados as $categoria => $servicios) {
-            $pdf->SetX($margin);
-            $pdf->SetFillColor(224, 224, 224);
-            $pdf->Cell(172, 10, utf8_decode($categoria), 1, 0, 'C', true);
-            $pdf->Ln();
+            $filas_datos .= '
+            <tr>
+                <td colspan="13" class="cat-header">' . htmlspecialchars($categoria) . '</td>
+            </tr>';
             foreach ($servicios as $servicio => $estados) {
-                $pdf->SetX($margin);
-                $pdf->SetFillColor(255, 255, 255);
-                $xStart = $pdf->GetX(); $yStart = $pdf->GetY();
-                $pdf->MultiCell(70, $lineHeight, utf8_decode($servicio), 1, 'L', false);
-                $yEnd = $pdf->GetY();
-                $rowHeight = $yEnd - $yStart;
-                $pdf->SetXY($xStart + 70, $yStart);
+                $filas_datos .= '<tr><td class="td-srv">' . htmlspecialchars($servicio) . '</td>';
                 for ($i = 1; $i <= 12; $i++) {
-                    $pdf->Cell(8.5, $rowHeight, isset($estados[$i]) ? $estados[$i] : '', 1);
+                    $filas_datos .= '<td class="td-mes">' . htmlspecialchars($estados[$i] ?? '') . '</td>';
                 }
-                $pdf->Ln();
+                $filas_datos .= '</tr>';
             }
         }
 
-        $pdf->Ln(10);
-$pdf->SetX(30);
+        $html = '<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
 
-// Parte superior: label con borde LTR
-$pdf->Cell(64, 5, utf8_decode('Elaboró:'), 'LTR', 0, 'C');
-$pdf->Cell(24, 5, '', 0, 0);
-$pdf->Cell(64, 5, 'Vo. Bo.:', 'LTR', 0, 'C');
-$pdf->Ln();
-$pdf->SetX(30);
+/* ── Página A4 portrait ── */
+@page {
+    size: A4 portrait;
+    margin: 12mm 10mm 10mm 10mm;
+}
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 8.5pt;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
 
-// Parte media: espacio para firma con solo bordes laterales
-$pdf->Cell(64, 12, '', 'LR', 0, 'C');
-$pdf->Cell(24, 12, '', 0, 0);
-$pdf->Cell(64, 12, '', 'LR', 0, 'C');
-$pdf->Ln();
-$pdf->SetX(30);
+/* ── ENCABEZADO ── */
+.header-wrap {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 6px;
+}
+.header-wrap td {
+    padding: 0;
+    vertical-align: middle;
+}
+.cell-logo-izq { width: 70px; text-align: left; }
+.cell-logo-izq img { width: 65px; height: auto; }
+.cell-texto {
+    text-align: center;
+    font-size: 9pt;
+    line-height: 1.7;
+}
+.cell-logo-der { width: 70px; text-align: right; }
+.cell-logo-der img { width: 60px; height: auto; }
 
-// Parte inferior: cierra el cuadro con borde LBR
-$pdf->Cell(64, 1, '', 'LBR', 0, 'C');
-$pdf->Cell(24, 1, '', 0, 0);
-$pdf->Cell(64, 1, '', 'LBR', 0, 'C');
-$pdf->Ln(5);
-$pdf->SetX(30);
+/* ── INFO LABORATORIO ── */
+.info-wrap {
+    width: 100%;
+    border-collapse: collapse;
+    border: 0.2px dashed #000;
+    margin-bottom: 6px;
+}
+.info-wrap td {
+    border: 0.2px dashed #000;
+   
+    font-size: 8.5pt;
+}
+/* Labels con gris igual al de categorías */
+.lbl { background: #e0e0e0; font-weight: normal; }
 
-// Labels debajo del cuadro
-$pdf->Cell(64, 4, 'Jefe de Laboratorio', 0, 0, 'C');
-$pdf->Cell(24, 4, '', 0, 0);
-$pdf->Cell(64, 4, utf8_decode('Director de Programa Educativo'), 0, 0, 'C');
-$pdf->Ln(12);
+/* ── AÑO (CORREGIDO) ── */
+.anio-row {
+    text-align: center;
+    font-size: 9pt;
+    margin-bottom: 3px;
+}
+
+/* ── TABLA PRINCIPAL ── */
+.tabla-main {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    margin-bottom: 12px;
+}
+.tabla-main th {
+    border: 1.5px solid #000;
+    text-align: center;
+    padding: 3px 1px;
+    background: #fff;
+    font-weight: normal;
+    font-size: 8pt;
+}
+.tabla-main td {
+    border: 1.5px solid #000;
+    padding: 2px 3px;
+    font-size: 8pt;
+}
+.th-srv  { width: 38%; text-align: center; }
+.th-dia  { width: 38%; text-align: center; }
+.th-num  { width: 5%;  text-align: center; }
+.td-srv  { text-align: left; width: 38%; }
+.td-mes  { text-align: center; width: 5%; }
+
+/* Categoría — gris claro igual al original */
+.cat-header {
+    background: #e0e0e0;
+    text-align: center;
+    font-weight: normal;
+    padding: 4px 3px;
+    font-size: 8.5pt;
+}
+
+/* ── FIRMAS ── */
+.firmas-wrap {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+.firmas-wrap td { padding: 0; }
+
+.firma-box {
+    width: 42%;
+    border: 0.2px dashed #000;
+    text-align: center;
+    vertical-align: top;
+}
+.firma-label {
+    border-bottom: 1.5px solid #00000000;
+    padding: 3px 5px;
+    font-size: 8pt;
+    text-align: left;
+}
+.firma-espacio {
+    height: 28px;
+}
+.firma-nombre {
+    border-top: 1.5px solid #00000000;
+    padding: 3px 5px;
+    font-weight: bold;
+    font-size: 8pt;
+    text-align: center;
+}
+.firma-cargo {
+    padding: 2px 5px;
+    font-size: 7.5pt;
+    text-align: center;
+}
+.firma-sep { width: 16%; }
+
+/* ── PIE DE PÁGINA — franja roja ── */
+.footer-bar {
+    width: 100%;
+    background-color: #8B1A10;
+    color: #ffffff;
+    font-size: 7.5pt;
+    padding: 4px 8px;
+    margin-top: 8px;
+    /* dompdf: usar tabla para el fondo */
+}
+.footer-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #8B1A10;
+}
+.footer-table td {
+    background-color: #8B1A10;
+    color: #ffffff;
+    font-size: 7.5pt;
+    padding: 4px 8px;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══ ENCABEZADO ══ -->
+<table class="header-wrap">
+<tr>
+    <td class="cell-logo-izq">
+        ' . ($logo_b64 ? '<img src="' . $logo_b64 . '">' : '') . '
+    </td>
+    <td class="cell-texto">
+        Subproceso de Apoyo: Laboratorios<br>
+        Formato: <strong>Lista de Cotejo para Laboratorios</strong><br>
+        Fecha de aprobaci&oacute;n: <strong>octubre 2023</strong>
+    </td>
+    <td class="cell-logo-der">
+        ' . ($sgc_b64 ? '<img src="' . $sgc_b64 . '">' : '') . '
+    </td>
+</tr>
+</table>
+
+<!-- ══ INFO LABORATORIO ══ -->
+<table class="info-wrap">
+<tr>
+    <td class="lbl" style="width:13%;">Laboratorio:</td>
+    <td style="width:22%;">' . htmlspecialchars($laboratorio_nombre) . '</td>
+    <td class="lbl" style="width:19%;">Programa Acad&eacute;mico</td>
+    <td style="width:30%;">' . htmlspecialchars($programa_academico) . '</td>
+    <td class="lbl" style="width:8%;">Edificio:</td>
+    <td style="width:8%;">' . htmlspecialchars($edificio) . '</td>
+</tr>
+</table>
+
+<!-- ══ AÑO (CORREGIDO) ══ -->
+<div class="anio-row">&#60;' . $año . '&#62;</div>
+
+<!-- ══ TABLA PRINCIPAL ══ -->
+<table class="tabla-main">
+<thead>
+    <tr>
+        <th class="th-srv">Mes</th>
+        <th class="th-num">1</th><th class="th-num">2</th><th class="th-num">3</th>
+        <th class="th-num">4</th><th class="th-num">5</th><th class="th-num">6</th>
+        <th class="th-num">7</th><th class="th-num">8</th><th class="th-num">9</th>
+        <th class="th-num">10</th><th class="th-num">11</th><th class="th-num">12</th>
+    </tr>
+    <tr>
+        <th class="th-dia">Dia</th>
+        <th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th>
+        <th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th>
+        <th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th>
+        <th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th><th class="th-num">&nbsp;</th>
+    </tr>
+</thead>
+<tbody>
+    ' . $filas_datos . '
+</tbody>
+</table>
+
+<!-- ══ FIRMAS ══ -->
+<table class="firmas-wrap">
+<tr>
+    <td class="firma-box">
+        <div class="firma-label">Elabor&oacute;:</div>
+        <div class="firma-espacio"></div>
+        <div class="firma-nombre">' . htmlspecialchars($nombre_encargado) . '</div>
+        <div class="firma-cargo">Jefe de Laboratorio</div>
+    </td>
+    <td class="firma-sep"></td>
+    <td class="firma-box">
+        <div class="firma-label">Vo. Bo.:</div>
+        <div class="firma-espacio"></div>
+        <div class="firma-nombre">&nbsp;</div>
+        <div class="firma-cargo">Director de Programa Educativo</div>
+    </td>
+</tr>
+</table>
+
+<!-- ══ PIE DE PÁGINA ══ -->
+<table class="footer-table">
+<tr>
+    <td>Para uso de la Universidad Polit&eacute;cnica de Tlaxcala mediante su Sistema de Gesti&oacute;n de la Calidad</td>
+</tr>
+</table>
+
+</body>
+</html>';
 
         // ================================================================
-        // PIE DE PAGINA - franja roja con texto blanco
+        // GENERAR PDF CON DOMPDF
+        // Para cambiar orientación: 'landscape' en lugar de 'portrait'
         // ================================================================
-        // Color de fondo: SetFillColor(R, G, B)
-        //   Rojo actual:   255, 0, 0
-        //   Rojo oscuro:   139, 26, 16  (color institucional UPTLAX)
-        //   Para cambiar: modifica los 3 numeros RGB
-        //
-        // Altura de la franja: Cell(0, 10, ...) <- el 10 es la altura en mm
-        //   Para hacerla mas delgada: cambia 10 por 7 o 6
-        //   Para hacerla mas alta:    cambia 10 por 14 o 16
-        //
-        // Tamano de letra: SetFont('Arial', 'I', 8)
-        //   El 8 es el tamano en puntos
-        //   Para letra mas grande: cambia 8 por 9 o 10
-        //   Para letra mas pequena: cambia 8 por 7 o 6
-        //   'I' = italica, 'B' = negrita, '' = normal
-        //
-        // Alineacion del texto: 'C' = centrado, 'L' = izquierda
-        //
-        // Texto: modifica el utf8_decode('...') para cambiar el texto
-        // ================================================================
-        $pdf->SetFillColor(139, 26, 16);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Arial', '', 8);
-        $pdf->Ln(15);
-$pdf->SetX(20);
-$pdf->Cell(145, 6, utf8_decode('Para uso de la Universidad Politécnica de Tlaxcala mediante su Sistema de Gestión de la Calidad'), 0, 0, 'L', true);
-        // ================================================================
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'Arial');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
 
         if (ob_get_level()) ob_end_clean();
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: inline; filename="reporte_anual_' . $año . '.pdf"');
-        header('Cache-Control: max-age=0');
-        $pdf->Output();
+
+        $dompdf->stream(
+            'reporte_anual_' . $año . '.pdf',
+            ['Attachment' => false] // false = abrir en navegador | true = descargar
+        );
         exit;
     }
 }

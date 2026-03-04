@@ -1,245 +1,417 @@
-idades · PHP
-Copiar
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+:root {
+    --rojo: #a52119;
+    --rojo-mid: #c0392b;
+    --rojo-dark: #8B1A10;
+    --gris-bg: #f5f6f8;
+    --gris-borde: #e2e8f0;
+    --texto-dark: #1e293b;
+    --texto-mid: #475569;
+    --sombra-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --radio: 14px;
+    --radio-sm: 8px;
+}
+.main-content { background: var(--gris-bg); min-height: calc(100vh - 81px); }
+.section__content--p30 { padding: 20px 16px; }
+@media(min-width:768px){ .section__content--p30 { padding: 28px; } }
+
+/* ── Encabezado de página ── */
+.page-header {
+    background: white;
+    border-radius: var(--radio);
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--sombra-sm);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-left: 4px solid var(--rojo);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.page-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--texto-dark);
+    margin: 0;
+}
+.page-header h2 i { color: var(--rojo); margin-right: 8px; }
+
+/* ── Botón principal rojo ── */
+.btn-r {
+    background: linear-gradient(135deg, var(--rojo), var(--rojo-mid));
+    color: white;
+    border: none;
+    border-radius: var(--radio-sm);
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .25s;
+    text-decoration: none;
+}
+.btn-r:hover {
+    box-shadow: 0 5px 15px rgba(165,33,25,.3);
+    transform: translateY(-1px);
+    color: white;
+    text-decoration: none;
+}
+
+/* ── Botón secundario ── */
+.btn-g {
+    background: #f1f5f9;
+    color: var(--texto-mid);
+    border: 1.5px solid var(--gris-borde);
+    border-radius: var(--radio-sm);
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .2s;
+    text-decoration: none;
+}
+.btn-g:hover {
+    background: #e2e8f0;
+    color: var(--texto-dark);
+    text-decoration: none;
+}
+
+/* ─── Card principal ─── */
+.card-m {
+    background: white;
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-sm);
+    border: 1px solid var(--gris-borde);
+    overflow: hidden;
+    margin-bottom: 24px;
+}
+
+/* ─── Tabla ─── */
+.table-wrap { overflow-x: auto; }
+table.t {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+/* THEAD en rojo institucional */
+table.t thead th {
+    background: var(--rojo-dark);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    padding: 12px 16px;
+    white-space: nowrap;
+}
+
+/* Filas alternas con tono rojo muy suave */
+table.t tbody tr { border-bottom: 1px solid var(--gris-borde); transition: background .15s; }
+table.t tbody tr:nth-child(even) { background: #fdf5f5; } /* rojo muy claro */
+table.t tbody tr:hover { background: #fce8e8; }
+table.t td {
+    padding: 11px 16px;
+    font-size: 13px;
+    color: var(--texto-mid);
+    vertical-align: middle;
+}
+
+/* ─── Botones de acción ─── */
+.ac-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all .2s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 0 2px;
+}
+.ac-btn:hover { transform: scale(1.1); text-decoration: none; }
+
+/* Editar — tono cálido rojizo suave */
+.ab-info { background: #fce8e8; color: var(--rojo); }
+.ab-info:hover { background: var(--rojo); color: white; }
+
+/* PDF — rojo más intenso */
+.ab-pdf { background: #fee2e2; color: #dc2626; }
+.ab-pdf:hover { background: #dc2626; color: white; }
+
+/* Eliminar — rojo oscuro */
+.ab-del { background: #fef2f2; color: #b91c1c; }
+.ab-del:hover { background: #b91c1c; color: white; }
+
+/* ─── Badges de estado ─── */
+.badge-e {
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    white-space: nowrap;
+}
+.be-green { background: #dcfce7; color: #15803d; }
+.be-red { background: #fee2e2; color: #dc2626; }
+.be-yellow { background: #fef9c3; color: #a16207; }
+.be-blue { background: #dbeafe; color: #1d4ed8; }
+
+/* ─── Estado vacío ─── */
+.empty-state {
+    padding: 50px 20px;
+    text-align: center;
+    color: var(--texto-mid);
+}
+.empty-state i {
+    font-size: 44px;
+    color: #cbd5e1;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* ─── Alertas ─── */
+.alert-s {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radio-sm);
+    padding: 12px 18px;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.alert-e {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    border-radius: var(--radio-sm);
+    padding: 12px 18px;
+    font-size: 13.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+/* ─── Información del programa ─── */
+.info-programa {
+    background: white;
+    border-radius: var(--radio-sm);
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--gris-borde);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.info-badge {
+    background: var(--rojo-light);
+    color: var(--rojo);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+.info-badge i { margin-right: 5px; }
+
+/* ─── Responsive ─── */
+@media(max-width: 768px) {
+    .table-wrap { margin: 0 -16px; }
+    table.t td { font-size: 12px; padding: 8px 10px; }
+    .ac-btn { width: 26px; height: 26px; font-size: 11px; }
+}
+</style>
 
 <div class="main-content">
     <div class="section__content section__content--p30">
         <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
+            
+            <!-- Encabezado -->
+            <div class="page-header">
+                <h2><i class="fas fa-calendar-alt"></i> Actividades — Programa Anual <?php echo $programa->anio; ?></h2>
+                <div class="d-flex gap-2">
+                    <span class="info-badge"><i class="fas fa-flask"></i> <?php echo htmlspecialchars($laboratorio_nombre); ?></span>
+                </div>
+            </div>
 
-                    <?php if($this->session->flashdata('success')): ?>
-                    <div class="alert alert-success alert-dismissible fade show">
-                        <i class="fas fa-check-circle"></i> <?php echo $this->session->flashdata('success'); ?>
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    </div>
-                    <?php endif; ?>
+            <!-- Mensajes flash -->
+            <?php if($this->session->flashdata('success')): ?>
+            <div class="alert-s"><i class="fas fa-check-circle"></i> <?php echo $this->session->flashdata('success'); ?></div>
+            <?php endif; ?>
+            <?php if($this->session->flashdata('error')): ?>
+            <div class="alert-e"><i class="fas fa-exclamation-circle"></i> <?php echo $this->session->flashdata('error'); ?></div>
+            <?php endif; ?>
 
-                    <!-- ═══ CARD PRINCIPAL ═══ -->
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <strong class="card-title">
-                                <i class="fas fa-calendar-alt" style="color:#a52119;"></i>
-                                Actividades — Programa Anual <?php echo $programa->anio; ?>
-                            </strong>
-                            <small class="float-right">
-                                <i class="fas fa-flask"></i> <?php echo htmlspecialchars($laboratorio_nombre); ?>
-                            </small>
-                        </div>
-                        <div class="card-body">
+            <!-- Información del programa -->
+            <div class="info-programa">
+                <div><strong>Año:</strong> <?php echo $programa->anio; ?></div>
+                <div><strong>Actividades:</strong> <?php echo count($actividades); ?> / <?php echo $max_actividades; ?></div>
+                <div><strong>Edificio:</strong> <?php echo htmlspecialchars($firmas->edificio ?? 'UD-4 — Campus Principal'); ?></div>
+            </div>
 
-                            <div class="alert alert-light border-left border-danger mb-3" style="border-left-width:4px !important;">
-                                <i class="fas fa-info-circle text-danger"></i>
-                                Año: <strong><?php echo $programa->anio; ?></strong> &nbsp;|&nbsp;
-                                Actividades: <strong><?php echo count($actividades); ?> / <?php echo $max_actividades; ?></strong>
-                            </div>
+            <!-- Botones de acción -->
+            <div class="row mb-3">
+                <div class="col-md-12 text-right">
+                    <button class="btn-r mr-1"
+                            data-toggle="modal" data-target="#modalActividad"
+                            <?php echo (count($actividades) >= $max_actividades) ? 'disabled title="Máximo 9 actividades"' : ''; ?>>
+                        <i class="fas fa-plus"></i> Nueva Actividad
+                    </button>
+                    <a href="<?php echo base_url('programa-anual/pdf/'.$programa->id); ?>"
+                       class="btn-r mr-1" target="_blank">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </a>
+                    <a href="<?php echo base_url('programa-anual'); ?>" class="btn-g">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
 
-                            <!-- Botones -->
-                            <div class="row mb-3">
-                                <div class="col-md-12 text-right">
-                                    <button class="btn btn-primary mr-1"
-                                            data-toggle="modal" data-target="#modalActividad"
-                                            <?php echo (count($actividades) >= $max_actividades) ? 'disabled title="Máximo 9 actividades"' : ''; ?>>
-                                        <i class="fas fa-plus"></i> Nueva Actividad
-                                    </button>
-                                    <a href="<?php echo base_url('programa-anual/pdf/'.$programa->id); ?>"
-                                       class="btn btn-danger mr-1" target="_blank">
-                                        <i class="fas fa-file-pdf"></i> Exportar PDF
-                                    </a>
-                                    <a href="<?php echo base_url('programa-anual'); ?>" class="btn btn-secondary">
-                                        <i class="fas fa-arrow-left"></i> Volver
-                                    </a>
-                                </div>
-                            </div>
-
-                            <!-- Tabla de actividades -->
-                            <div class="table-responsive">
-                                <table class="table table-bordered" style="font-size:12px;">
-                                    <thead class="thead-dark">
-                                        <tr>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;width:40px;">N°</th>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;width:110px;">Laboratorio</th>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;">Actividad</th>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;width:85px;">Estatus</th>
-                                            <th class="text-center" colspan="12">Meses</th>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;width:120px;">Observaciones</th>
-                                            <th class="text-center" rowspan="2" style="vertical-align:middle;width:75px;">Acción</th>
-                                        </tr>
-                                        <tr>
-                                            <?php foreach($meses as $mes): ?>
-                                            <th class="text-center" style="width:36px;"><?php echo $mes; ?></th>
-                                            <?php endforeach; ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if(empty($actividades)): ?>
-                                        <tr>
-                                            <td colspan="18" class="text-center text-muted py-4">
-                                                <i class="fas fa-inbox fa-2x d-block mb-2"></i>
-                                                Sin actividades. Presiona "Nueva Actividad".
-                                            </td>
-                                        </tr>
-                                        <?php else: ?>
-                                        <?php foreach($actividades as $act):
-                                            $mpl = $act->meses_planeados;
-                                            $mre = $act->meses_realizados;
-                                        ?>
-                                        <tr>
-                                            <td class="text-center" rowspan="2" style="vertical-align:middle;font-weight:bold;"><?php echo $act->actividad_id; ?></td>
-                                            <td rowspan="2" style="vertical-align:middle;font-size:11px;"><?php echo htmlspecialchars($laboratorio_nombre); ?></td>
-                                            <td rowspan="2" style="vertical-align:middle;"><?php echo htmlspecialchars($act->actividad_nombre); ?></td>
-                                            <td class="text-center" style="font-size:10px;font-weight:bold;color:#a52119;background:#fff5f5;">PLANEADO</td>
-                                            <?php for($m=1;$m<=12;$m++): ?>
-                                            <td class="text-center" style="background:#fff5f5;">
-                                                <?php if(in_array($m,$mpl)): ?>
-                                                <span style="color:#a52119;font-weight:bold;font-size:14px;">✕</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <?php endfor; ?>
-                                            <td rowspan="2" style="vertical-align:middle;font-size:11px;"><?php echo htmlspecialchars($act->observaciones ?? ''); ?></td>
-                                            <td rowspan="2" class="text-center" style="vertical-align:middle;">
-                                                <a href="#" class="btn btn-xs btn-outline-primary d-block mb-1 btn-editar"
-                                                   data-id="<?php echo $act->actividad_id; ?>"
-                                                   data-nombre="<?php echo htmlspecialchars($act->actividad_nombre, ENT_QUOTES); ?>"
-                                                   data-obs="<?php echo htmlspecialchars($act->observaciones ?? '', ENT_QUOTES); ?>"
-                                                   data-planeados="<?php echo implode(',',$mpl); ?>"
-                                                   data-realizados="<?php echo implode(',',$mre); ?>">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="<?php echo base_url('programa-anual/eliminar_actividad/'.$programa->id.'/'.$act->actividad_id); ?>"
-                                                   class="btn btn-xs btn-outline-danger d-block"
-                                                   onclick="return confirm('¿Eliminar esta actividad?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-center" style="font-size:10px;font-weight:bold;color:#28a745;background:#f4fff4;">REALIZADO</td>
-                                            <?php for($m=1;$m<=12;$m++): ?>
-                                            <td class="text-center" style="background:#f4fff4;">
-                                                <?php if(in_array($m,$mre)): ?>
-                                                <span style="color:#28a745;font-weight:bold;font-size:14px;">✕</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <?php endfor; ?>
-                                        </tr>
-                                        <?php endforeach; ?>
+            <!-- Tabla de actividades -->
+            <div class="card-m">
+                <div class="table-wrap">
+                    <table class="t">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Actividad</th>
+                                <th>Ene</th><th>Feb</th><th>Mar</th><th>Abr</th><th>May</th><th>Jun</th>
+                                <th>Jul</th><th>Ago</th><th>Sep</th><th>Oct</th><th>Nov</th><th>Dic</th>
+                                <th>Observaciones</th>
+                                <th style="text-align:center;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if(empty($actividades)): ?>
+                            <tr>
+                                <td colspan="15" class="empty-state">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    No hay actividades registradas. Presiona "Nueva Actividad".
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                                <?php foreach($actividades as $act): 
+                                    $mpl = $act->meses_planeados;
+                                    $mre = $act->meses_realizados;
+                                ?>
+                                <tr>
+                                    <td><strong><?php echo $act->actividad_id; ?></strong></td>
+                                    <td style="max-width:200px;"><?php echo htmlspecialchars($act->actividad_nombre); ?></td>
+                                    
+                                    <!-- Meses planeados -->
+                                    <?php for($m=1;$m<=12;$m++): ?>
+                                    <td class="text-center" style="background:#fdf5f5;">
+                                        <?php if(in_array($m,$mpl)): ?>
+                                        <span style="color:var(--rojo); font-weight:bold; font-size:14px;">✓</span>
                                         <?php endif; ?>
-                                    </tbody>
-                                </table>
+                                    </td>
+                                    <?php endfor; ?>
+                                    
+                                    <td style="max-width:150px;"><?php echo htmlspecialchars($act->observaciones ?? ''); ?></td>
+                                    <td style="text-align:center; white-space:nowrap;">
+                                        <a href="#" class="ac-btn ab-info btn-editar"
+                                           data-id="<?php echo $act->actividad_id; ?>"
+                                           data-nombre="<?php echo htmlspecialchars($act->actividad_nombre, ENT_QUOTES); ?>"
+                                           data-obs="<?php echo htmlspecialchars($act->observaciones ?? '', ENT_QUOTES); ?>"
+                                           data-planeados="<?php echo implode(',',$mpl); ?>"
+                                           data-realizados="<?php echo implode(',',$mre); ?>"
+                                           title="Editar actividad">
+                                           <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="<?php echo base_url('programa-anual/eliminar_actividad/'.$programa->id.'/'.$act->actividad_id); ?>"
+                                           class="ac-btn ab-del" title="Eliminar"
+                                           onclick="return confirm('¿Eliminar esta actividad?')">
+                                           <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Card de Firmas -->
+            <div class="card-m mt-4">
+                <div class="page-header" style="margin-bottom:0; border-radius: var(--radio) var(--radio) 0 0;">
+                    <h5 style="margin:0; font-size:15px;"></i> Responsables </h5>
+                    <small class="text-muted"><i class="fas fa-save"></i> Se guardan automáticamente</small>
+                </div>
+                <div class="p-3">
+                    <form id="formFirmas">
+                        <input type="hidden" name="programa_id" value="<?php echo $programa->id; ?>">
+
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Responsable</label>
+                                <input type="text" name="responsable" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->responsable ?? ''); ?>"
+                                       placeholder="Nombre del responsable...">
                             </div>
-
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Revisó</label>
+                                <input type="text" name="revisor" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->revisor ?? ''); ?>"
+                                       placeholder="Director de Programa Educativo">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Autorizó</label>
+                                <input type="text" name="autorizo" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->autorizo ?? ''); ?>"
+                                       placeholder="Secretaría Académica">
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- ═══ CARD FIRMAS (se guardan en BD) ═══ -->
-                    <div class="card">
-                        <div class="card-header" style="background:#f8f9fa;">
-                            <strong class="card-title">
-                                <i class="fas fa-signature text-danger"></i>
-                                Datos de Firmas y Edificio
-                            </strong>
-                            <small class="float-right text-muted">
-                                <i class="fas fa-save"></i> Se guardan automáticamente
-                            </small>
+                        <div class="row">
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Primer Cuatrimestre</label>
+                                <input type="text" name="primer_cuatrimestre" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->primer_cuatrimestre ?? ''); ?>"
+                                       placeholder="Nombre y firma...">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Segundo Cuatrimestre</label>
+                                <input type="text" name="segundo_cuatrimestre" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->segundo_cuatrimestre ?? ''); ?>"
+                                       placeholder="Nombre y firma...">
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small fw-bold">Tercer Cuatrimestre</label>
+                                <input type="text" name="tercer_cuatrimestre" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->tercer_cuatrimestre ?? ''); ?>"
+                                       placeholder="Nombre y firma...">
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <p class="text-muted mb-3" style="font-size:13px;">
-                                <i class="fas fa-info-circle"></i>
-                                Estos datos aparecerán en el PDF exportado. Se guardan en la base de datos y puedes actualizarlos cuando quieras.
-                            </p>
 
-                            <form id="formFirmas">
-                                <input type="hidden" name="programa_id" value="<?php echo $programa->id; ?>">
-
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>
-                                                <i class="fas fa-user text-danger"></i>
-                                                <strong>Responsable</strong>
-                                                <small class="text-muted d-block">Nombre y firma del Área</small>
-                                            </label>
-                                            <input type="text" name="responsable" class="form-control"
-                                                   value="<?php echo htmlspecialchars($firmas->responsable ?? ''); ?>"
-                                                   placeholder="Nombre del responsable...">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>
-                                                <i class="fas fa-user-check" style="color:#d49800;"></i>
-                                                <strong>Revisó</strong>
-                                                <small class="text-muted d-block">Director de Programa Educativo</small>
-                                            </label>
-                                            <input type="text" name="revisor" class="form-control"
-                                                   value="<?php echo htmlspecialchars($firmas->revisor ?? ''); ?>"
-                                                   placeholder="Nombre del revisor...">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label>
-                                                <i class="fas fa-user-shield text-success"></i>
-                                                <strong>Autorizó</strong>
-                                                <small class="text-muted d-block">Secretaría Académica</small>
-                                            </label>
-                                            <input type="text" name="autorizo" class="form-control"
-                                                   value="<?php echo htmlspecialchars($firmas->autorizo ?? ''); ?>"
-                                                   placeholder="Nombre de quien autoriza...">
-                                        </div>
-                                    </div>
-                                </div>
-<!-- En el formulario de firmas, agrega estos campos -->
-<div class="row">
-    <div class="col-md-4">
-        <div class="form-group">
-            <label>Primer Cuatrimestre</label>
-            <input type="text" name="primer_cuatrimestre" class="form-control" 
-                   value="<?php echo htmlspecialchars($firmas->primer_cuatrimestre ?? ''); ?>"
-                   placeholder="Nombre y firma...">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label>Segundo Cuatrimestre</label>
-            <input type="text" name="segundo_cuatrimestre" class="form-control" 
-                   value="<?php echo htmlspecialchars($firmas->segundo_cuatrimestre ?? ''); ?>"
-                   placeholder="Nombre y firma...">
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="form-group">
-            <label>Tercer Cuatrimestre</label>
-            <input type="text" name="tercer_cuatrimestre" class="form-control" 
-                   value="<?php echo htmlspecialchars($firmas->tercer_cuatrimestre ?? ''); ?>"
-                   placeholder="Nombre y firma...">
-        </div>
-    </div>
-</div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>
-                                                <i class="fas fa-building"></i>
-                                                <strong>Edificio / Campus</strong>
-                                            </label>
-                                            <input type="text" name="edificio" class="form-control"
-                                                   value="<?php echo htmlspecialchars($firmas->edificio ?? 'UD-4 — Campus Principal'); ?>"
-                                                   placeholder="Ej: UD-4 — Campus Principal">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 d-flex align-items-end pb-3">
-                                        <button type="submit" class="btn btn-success" id="btnGuardarFirmas">
-                                            <i class="fas fa-save"></i> Guardar Firmas
-                                        </button>
-                                        <span id="firmasStatus" class="ml-3" style="display:none;font-size:13px;"></span>
-                                    </div>
-                                </div>
-
-                            </form>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <label class="small fw-bold">Edificio / Campus</label>
+                                <input type="text" name="edificio" class="form-control form-control-sm"
+                                       value="<?php echo htmlspecialchars($firmas->edificio ?? 'UD-4 — Campus Principal'); ?>">
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end pb-3">
+                                <button type="submit" class="btn-r" id="btnGuardarFirmas">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                                <span id="firmasStatus" class="ml-3" style="display:none;font-size:12px;"></span>
+                            </div>
                         </div>
-                    </div>
-
+                    </form>
                 </div>
             </div>
         </div>
@@ -250,11 +422,11 @@ Copiar
 <div class="modal fade" id="modalActividad" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="tituloModal">
-                    <i class="fas fa-plus-circle text-primary"></i> Nueva Actividad
+            <div class="modal-header" style="background: linear-gradient(135deg, #a52119, #8B1A10); color: white;">
+                <h5 class="modal-title" style="color: white;" id="tituloModal">
+                    <i class="fas fa-plus-circle"></i> Nueva Actividad
                 </h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <button type="button" class="close" data-dismiss="modal" style="color: white;">&times;</button>
             </div>
             <form id="formActividad">
                 <div class="modal-body">
@@ -315,10 +487,10 @@ Copiar
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <button type="button" class="btn-g" data-dismiss="modal">
                         <i class="fas fa-times"></i> Cancelar
                     </button>
-                    <button type="submit" class="btn btn-primary" id="btnGuardar">
+                    <button type="submit" class="btn-r" id="btnGuardar">
                         <i class="fas fa-save"></i> Guardar Actividad
                     </button>
                 </div>
@@ -327,15 +499,10 @@ Copiar
     </div>
 </div>
 
-<style>
-.btn-xs { padding:3px 8px; font-size:11px; }
-.border-left { border-left: 4px solid #a52119 !important; }
-</style>
-
 <script>
 $(document).ready(function() {
 
-    // ── GUARDAR FIRMAS (AJAX) ────────────────────────────────────
+    // ── Guardar (AJAX) ────────────────────────────────────
     $('#formFirmas').submit(function(e) {
         e.preventDefault();
         var btn    = $('#btnGuardarFirmas');
@@ -349,16 +516,16 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(r) {
                 if (r.success) {
-                    status.show().html('<i class="fas fa-check-circle text-success"></i> <span class="text-success">Firmas guardadas correctamente</span>');
+                    status.show().html('<i class="fas fa-check-circle" style="color: #a52119;"></i> Firmas guardadas').css('display', 'inline-block');
                     setTimeout(function(){ status.fadeOut(); }, 3000);
                 } else {
-                    status.show().html('<i class="fas fa-times-circle text-danger"></i> <span class="text-danger">' + (r.error || 'Error') + '</span>');
+                    status.show().html('<i class="fas fa-times-circle text-danger"></i> ' + (r.error || 'Error')).css('display', 'inline-block');
                 }
-                btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Firmas');
+                btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar');
             },
             error: function() {
-                status.show().html('<i class="fas fa-times-circle text-danger"></i> <span class="text-danger">Error de conexión</span>');
-                btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Firmas');
+                status.show().html('<i class="fas fa-times-circle text-danger"></i> Error de conexión').css('display', 'inline-block');
+                btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar');
             }
         });
     });
@@ -376,7 +543,7 @@ $(document).ready(function() {
         $('#input_actividad_id').val($(this).data('id'));
         $('#input_actividad_nombre').val($(this).data('nombre'));
         $('#input_observaciones').val($(this).data('obs'));
-        $('#tituloModal').html('<i class="fas fa-edit text-warning"></i> Editar Actividad #' + $(this).data('id'));
+        $('#tituloModal').html('<i class="fas fa-edit" style="color: white;"></i> Editar Actividad #' + $(this).data('id'));
         $('#btnGuardar').html('<i class="fas fa-save"></i> Actualizar');
         $('#modalActividad').modal('show');
     });
@@ -386,7 +553,7 @@ $(document).ready(function() {
         $('.chk-planeado, .chk-realizado').prop('checked', false);
         $('#input_actividad_nombre').val('');
         $('#input_observaciones').val('');
-        $('#tituloModal').html('<i class="fas fa-plus-circle text-primary"></i> Nueva Actividad');
+        $('#tituloModal').html('<i class="fas fa-plus-circle" style="color: white;"></i> Nueva Actividad');
         $('#btnGuardar').html('<i class="fas fa-save"></i> Guardar Actividad');
         $('#input_actividad_id').val(<?php echo count($actividades) + 1; ?>);
     });
@@ -405,15 +572,30 @@ $(document).ready(function() {
             success: function(r) {
                 if (r.success) {
                     $('#modalActividad').modal('hide');
-                    Swal.fire({ icon:'success', title:'¡Guardado!', timer:1400, showConfirmButton:false })
-                        .then(function(){ location.reload(); });
+                    Swal.fire({ 
+                        icon:'success', 
+                        title:'¡Guardado!', 
+                        timer:1400, 
+                        showConfirmButton:false,
+                        confirmButtonColor: '#a52119'
+                    }).then(function(){ location.reload(); });
                 } else {
-                    Swal.fire('Error', r.error || 'No se pudo guardar.', 'error');
+                    Swal.fire({ 
+                        icon:'error', 
+                        title:'Error', 
+                        text: r.error || 'No se pudo guardar.',
+                        confirmButtonColor: '#a52119'
+                    });
                     btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Actividad');
                 }
             },
             error: function(xhr) {
-                Swal.fire('Error de conexión', 'Intenta nuevamente.', 'error');
+                Swal.fire({ 
+                    icon:'error', 
+                    title:'Error de conexión', 
+                    text: 'Intenta nuevamente.',
+                    confirmButtonColor: '#a52119'
+                });
                 btn.prop('disabled', false).html('<i class="fas fa-save"></i> Guardar Actividad');
             }
         });

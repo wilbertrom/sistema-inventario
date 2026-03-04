@@ -36,21 +36,20 @@
             top: 0; left: 0; right: 0;
             width: 100%;
             z-index: 1000;
-            border-bottom: 3px solid #a52119;
         }
         .header-desktop .section__content { width:100%; padding:0 25px; }
         .header-desktop .header-wrap {
             display:flex; justify-content:space-between; align-items:center; min-height:75px;
         }
 
-        /* Logo */
+        /* ── Logo ── */
         .header-logo { display:flex; align-items:center; min-width:200px; }
         .header-logo .logo { display:flex; align-items:center; text-decoration:none; gap:12px; }
         .header-logo .logo img { height:48px; width:auto; }
         .header-logo .logo-text { font-size:15px; font-weight:700; color:#a52119; line-height:1.25; }
         .header-logo .logo-text small { display:block; font-size:10.5px; font-weight:400; color:#666; }
 
-        /* Nav */
+        /* ── Nav ── */
         .header-nav { flex:1; display:flex; justify-content:center; }
         .header-nav ul { display:flex; align-items:center; list-style:none; margin:0; padding:0; gap:2px; }
         .header-nav-link {
@@ -60,7 +59,13 @@
             transition:background .25s, color .25s, transform .2s, box-shadow .25s;
             white-space:nowrap;
         }
-        .header-nav-link i { font-size:14px; color:#a52119; transition:color .25s; }
+        .header-nav-link i {
+            font-size:14px; color:#a52119; transition:color .25s;
+            /* FIX: forzar visibilidad del icono en todos los contextos */
+            display:inline-flex !important;
+            visibility:visible !important;
+            opacity:1 !important;
+        }
         .header-nav-link:hover, .header-nav-link.active {
             background:linear-gradient(135deg,#a52119,#a52119);
             color:#fff; transform:translateY(-2px);
@@ -68,7 +73,7 @@
         }
         .header-nav-link:hover i, .header-nav-link.active i { color:#fff; }
 
-        /* Dropdown */
+        /* ── Dropdown ── */
         .header-desktop .dropdown-menu {
             border:none; border-top:3px solid #a52119; border-radius:14px;
             box-shadow:0 12px 35px rgba(0,0,0,.13); padding:8px 0;
@@ -76,17 +81,31 @@
             animation:dropDown .2s ease;
         }
         @keyframes dropDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
         .header-desktop .dropdown-item {
             display:flex; align-items:center; gap:12px; padding:10px 20px;
             font-size:13px; color:#333; font-weight:500;
             transition:background .2s, color .2s, padding-left .2s;
         }
-        .header-desktop .dropdown-item i { width:20px; font-size:14px; color:#a52119; transition:transform .2s; flex-shrink:0; }
+        /* FIX PRINCIPAL: forzar visibilidad de iconos dentro del dropdown */
+        .header-desktop .dropdown-item i {
+            width:20px; font-size:14px; color:#a52119;
+            transition:transform .2s; flex-shrink:0;
+            display:inline-flex !important;
+            visibility:visible !important;
+            opacity:1 !important;
+        }
         .header-desktop .dropdown-item:hover { background:#fdf1f0; color:#a52119; padding-left:26px; }
-        .header-desktop .dropdown-item:hover i { transform:scale(1.15); }
+        .header-desktop .dropdown-item:hover i { transform:scale(1.15); color:#a52119; }
         .dropdown-divider { margin:4px 12px; border-color:#f0e0e0; }
 
-        /* Perfil */
+        /* Fix: dropdown no se cierra al hacer active en el padre */
+        .header-nav li.dropdown > .header-nav-link.active {
+            background:linear-gradient(135deg,#a52119,#a52119);
+            color:white;
+        }
+
+        /* ── Perfil ── */
         .header-button { min-width:180px; display:flex; justify-content:flex-end; }
         .account-item {
             display:flex; align-items:center; gap:10px; cursor:pointer;
@@ -113,6 +132,7 @@
         .account-dropdown__footer a { display:flex; align-items:center; gap:10px; padding:11px 20px; color:#dc3545; font-size:13px; transition:background .2s; }
         .account-dropdown__footer a:hover { background:#fff5f5; text-decoration:none; }
 
+        /* ── Layout ── */
         .page-container {
             margin-left:0 !important; width:100% !important; max-width:100% !important;
             padding-top:81px !important; padding-left:0 !important; padding-right:0 !important;
@@ -134,7 +154,9 @@
 <body class="animsition">
 <div class="page-wrapper">
 
-<!-- HEADER MÓVIL -->
+<!-- ══════════════════════════════
+     HEADER MÓVIL
+══════════════════════════════ -->
 <header class="header-mobile d-block d-lg-none">
     <div class="header-mobile__bar">
         <div class="container-fluid">
@@ -163,9 +185,9 @@
                 <li class="has-sub">
                     <a class="js-arrow" href="#"><i class="fas fa-certificate"></i> Gestión de Calidad</a>
                     <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
-                        <li><a href="<?php echo base_url('reporteServicios/index'); ?>">Reportes de servicios</a></li>
-                        <li><a href="<?php echo base_url('programa-anual'); ?>">Programa Anual</a></li>
-                        <li><a href="<?php echo base_url('orden-mantenimiento'); ?>">Orden de Mantenimiento</a></li>
+                        <li><a href="<?php echo base_url('reporteServicios/index'); ?>"><i class="fas fa-clipboard-check"></i> Lista de Cotejo</a></li>
+                        <li><a href="<?php echo base_url('programa-anual'); ?>"><i class="fas fa-calendar-alt"></i> Programa Anual</a></li>
+                        <li><a href="<?php echo base_url('orden-mantenimiento'); ?>"><i class="fas fa-wrench"></i> Orden de Mantenimiento</a></li>
                     </ul>
                 </li>
                 <li><a href="<?php echo base_url('perfil/editar'); ?>"><i class="fas fa-user"></i> Mi Perfil</a></li>
@@ -175,7 +197,9 @@
     </nav>
 </header>
 
-<!-- HEADER DESKTOP -->
+<!-- ══════════════════════════════
+     HEADER DESKTOP
+══════════════════════════════ -->
 <header class="header-desktop d-none d-lg-block">
     <div class="section__content">
         <div class="container-fluid">
@@ -218,21 +242,22 @@
                             </div>
                         </li>
 
-                        <!-- Calidad — AHORA CON ORDEN DE MANTENIMIENTO -->
+                        <!-- Gestión de Calidad -->
                         <li class="dropdown">
                             <a href="#" class="header-nav-link dropdown-toggle" data-toggle="dropdown">
                                 <i class="fas fa-certificate"></i> Gestión de Calidad
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="<?php echo base_url('reporteServicios/index'); ?>">
-                                    <i class="fas fa-clipboard-check"></i> Reportes de servicios
+                                    <i class="fas fa-clipboard-check"></i> Lista de Cotejo
                                 </a>
                                 <a class="dropdown-item" href="<?php echo base_url('programa-anual'); ?>">
                                     <i class="fas fa-calendar-alt"></i> Programa Anual
                                 </a>
                                 <div class="dropdown-divider"></div>
+                                <!-- fa-wrench es compatible con FA 4.7 y FA 5 -->
                                 <a class="dropdown-item" href="<?php echo base_url('orden-mantenimiento'); ?>">
-                                    <i class="fas fa-tools"></i> Orden de Mantenimiento
+                                    <i class="fas fa-wrench"></i> Orden de Mantenimiento
                                 </a>
                             </div>
                         </li>
