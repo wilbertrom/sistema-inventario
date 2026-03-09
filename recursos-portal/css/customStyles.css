@@ -1,0 +1,36 @@
+body{
+    background-color: #f7f8fa;
+}
+
+.btn-uptx{
+    color: #fff !important;
+    background-color: #a52119 !important;
+    border-color: #a52119 !important;
+}
+
+
+.btn-uptx:hover{
+    background-color: #fff !important;
+    border-color: #a52119 !important;
+    color: #a52119 !important;
+}
+
+.btn-contact-us {
+    margin-left: 48px !important;
+}
+
+.img-fluid .banner-uptx{
+    max-width: 40%;
+}
+
+.nav-uptx{
+    color: #a52119 !important;
+}
+
+.nav-uptx:hover{
+    color: #000000 !important;
+}
+
+.a-uptx{
+    color: #a52119 !important;
+}

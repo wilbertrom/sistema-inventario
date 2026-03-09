@@ -1,0 +1,2 @@
+[04-Mar-2026 07:58:20 UTC] PHP Fatal error:  Cannot declare class Panel, because the name is already in use in /home/labsdmpj/public_html/application/views/panel/ver_inventario.php on line 4
+[04-Mar-2026 08:00:22 UTC] PHP Fatal error:  Cannot declare class Panel, because the name is already in use in /home/labsdmpj/public_html/application/views/panel/ver_inventario.php on line 4
